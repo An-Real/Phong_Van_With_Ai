@@ -19,7 +19,7 @@
 
 <div class="nav-menu">
     <a href="/candidate/job-board">Bảng tin Việc làm</a>
-    <a href="#">Công ty đã nộp</a>
+    <a href="/candidate/applied-jobs">Công ty đã nộp</a>
     <a href="/candidate/profile">Hồ sơ cá nhân</a>
     <a href="/logout" style="float: right; color: #ffcccc;">Đăng xuất</a>
 </div>
@@ -39,14 +39,14 @@
     <!-- NẾU ĐÃ NỘP: Hiện nút màu xám, không cho bấm -->
     <div th:if="${appliedJobIds.contains(job.id)}" style="margin-top: 15px;">
         <button disabled style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: not-allowed; width: 100%;">
-            Đã nộp CV
+            Đã Ứng Tuyển
         </button>
     </div>
 
     <!-- NẾU CHƯA NỘP: Hiện form nộp CV bình thường -->
     <form th:unless="${appliedJobIds.contains(job.id)}" th:action="@{/candidate/apply}" method="POST" style="margin-top: 15px;">
         <input type="hidden" name="jobId" th:value="${job.id}" />
-        <button type="submit" class="apply-btn" style="width: 100%;">Nộp CV Ngay</button>
+        <button type="submit" class="apply-btn" style="width: 100%;">Ứng Tuyển Ngay</button>
     </form>
 </div>
 

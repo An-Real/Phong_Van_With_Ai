@@ -43,10 +43,9 @@
         </thead>
         <tbody>
         <!-- Trỏ URL về /employer/interviews/detail -->
-        <tr th:each="info : ${interviewList}"
-            class="clickable-row"
-            th:attr="data-app-id=${info.app.id}"
-            onclick="window.location.href='/employer/interviews/detail?appId=' + this.dataset.appId">
+        <tr th:each="info : ${interviewList}" class="clickable-row"
+            th:data-url="@{/employer/interviews/detail(appId=${info.app.id})}"
+            onclick="window.location.href=this.getAttribute('data-url')">
 
             <td th:text="${info.candidate.page1_basicInfo.fullName}" style="font-weight: bold; color: #004aad;"></td>
             <td th:text="${info.job.title}"></td>

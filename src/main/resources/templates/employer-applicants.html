@@ -47,10 +47,9 @@
         </thead>
         <tbody>
         <!-- Biến cả hàng thành liên kết click được -->
-        <tr th:each="info : ${applicantList}"
-            class="clickable-row"
-            th:attr="data-app-id=${info.app.id}"
-            onclick="window.location.href='/employer/applicants/detail?appId=' + this.dataset.appId">
+        <tr th:each="info : ${applicantList}" class="clickable-row"
+            th:data-url="@{/employer/applicants/detail(appId=${info.app.id})}"
+            onclick="window.location.href=this.getAttribute('data-url')">
 
             <td th:text="${info.candidate.page1_basicInfo.fullName}" style="font-weight: bold; color: #004aad;"></td>
             <td th:text="${info.job.title}"></td>

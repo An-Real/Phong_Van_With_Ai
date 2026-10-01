@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Công ty đã nộp</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .nav-menu { background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .nav-menu a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
+        .nav-menu a:hover { text-decoration: underline; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #004aad; font-weight: bold; }
+
+        /* Màu sắc Trạng thái chuẩn */
+        .badge { padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; color: white; display: inline-block; text-align: center; }
+        .bg-applied { background-color: #f39c12; } /* Chờ duyệt */
+        .bg-interview { background-color: #17a2b8; } /* Chờ phỏng vấn */
+        .bg-hired { background-color: #28a745; } /* Đã Trúng Tuyển */
+        .bg-failed { background-color: #6c757d; } /* Trượt Phỏng Vấn */
+        .bg-rejected { background-color: #dc3545; } /* Đã từ chối */
+
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+<div class="nav-menu">
+    <a href="/candidate/job-board">Bảng tin Việc làm</a>
+    <a href="/candidate/applied-jobs">Công ty đã nộp</a>
+    <a href="/candidate/profile">Hồ sơ cá nhân</a>
+    <a href="/logout" style="float: right; color: #ffcccc;">Đăng xuất</a>
+</div>
+
+<div class="container">
+    <h2 style="color: #004aad; margin-top: 0;">Lịch sử Ứng Tuyển</h2>
+    <p style="color: #666; font-style: italic;">(Nhấp vào công việc để xem chi tiết hoặc Hủy ứng tuyển)</p>
+    <p th:if="${param.cancelled}" style="color: #dc3545; font-weight: bold;">Đã hủy ứng tuyển thành công!</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Cấp bậc</th>
+            <th>Địa điểm</th>
+            <th>Hình thức</th>
+            <th>Số lượng</th>
+            <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="info : ${appliedList}" class="clickable-row"
+            th:data-url="@{/candidate/applied-jobs/detail(appId=${info.app.id})}"
+            onclick="window.location.href=this.getAttribute('data-url')">
+            <td th:text="${info.job.title}" style="font-weight: bold;"></td>
+            <td th:text="${info.job.level}"></td>
+            <td th:text="${info.job.location}"></td>
+            <td th:text="${info.job.workFormat}"></td>
+            <td th:text="${info.job.headcount}"></td>
+            <td>
+                <span th:if="${info.app.status == 'APPLIED'}" class="badge bg-applied">Chờ duyệt CV</span>
+                <span th:if="${info.app.status == 'PENDING_INTERVIEW'}" class="badge bg-interview">Chờ phỏng vấn</span>
+                <span th:if="${info.app.status == 'HIRED'}" class="badge bg-hired">Đã Trúng Tuyển</span>
+                <span th:if="${info.app.status == 'INTERVIEW_FAILED'}" class="badge bg-failed">Trượt Phỏng Vấn</span>
+                <span th:if="${info.app.status == 'REJECTED'}" class="badge bg-rejected">Đã từ chối</span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(appliedList)}">
+            <td colspan="6" style="text-align: center; padding: 20px;">Bạn chưa ứng tuyển công việc nào.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
