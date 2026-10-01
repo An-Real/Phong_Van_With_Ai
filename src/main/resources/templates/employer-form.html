@@ -18,10 +18,36 @@
 <body>
 
 <div class="container">
-    <div class="nav-bar">
-        <span>Xin chào, Nhà tuyển dụng!</span>
-        <a href="/logout" style="margin-left: 15px; color: red; font-weight: bold; text-decoration: none;">Đăng xuất</a>
-    </div>
+    <nav class="nav-bar">
+        <a href="#"
+           style="text-decoration: none; font-weight: bold;">
+            Quản lý Bài đăng
+        </a>
+        <span> | </span>
+
+        <a href="#"
+           style="text-decoration: none; font-weight: bold;">
+            Danh sách Ứng viên
+        </a>
+        <span> | </span>
+
+        <a href="#"
+           style="text-decoration: none; font-weight: bold;">
+            Danh sách Phỏng vấn
+        </a>
+        <span> | </span>
+
+        <a href="/employer/dashboard"
+           style="text-decoration: none; font-weight: bold;">
+            Hồ sơ Công ty
+        </a>
+        <span> | </span>
+
+        <a href="/logout"
+           style="color: red; font-weight: bold; text-decoration: none;">
+            Đăng xuất
+        </a>
+    </nav>
 
     <p th:if="${param.success}" style="color: green; font-weight: bold; text-align: center;">Cập nhật thông tin Công ty thành công!</p>
 

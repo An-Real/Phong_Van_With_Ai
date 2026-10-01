@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Bài đăng</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .nav-menu { background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .nav-menu a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
+        .nav-menu a:hover { text-decoration: underline; }
+        .container { display: flex; gap: 20px; align-items: flex-start; }
+
+        /* Cột bên trái: Form nhập liệu  */
+        .form-section { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-height: 80vh; overflow-y: auto; }
+
+        /* Cột bên phải: Bảng danh sách */
+        .list-section { flex: 2; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+        input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #004aad; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 4px; }
+        button:hover { background-color: #003080; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; color: #004aad; }
+    </style>
+</head>
+<body>
+
+<!-- Thanh Menu Doanh nghiệp -->
+<div class="nav-menu">
+    <a href="/employer/jobs">Quản lý Bài đăng</a>
+    <a href="#">Danh sách Ứng viên</a>
+    <a href="#">Danh sách Phỏng vấn</a>
+    <a href="/employer/dashboard">Hồ sơ Công ty</a>
+    <a href="/logout" style="float: right; color: #ffcccc;">Đăng xuất</a>
+</div>
+
+<h2 style="color: #004aad;">Quản lý Việc làm</h2>
+<p th:if="${param.success}" style="color: green; font-weight: bold;">Đăng bài tuyển dụng thành công!</p>
+
+<div class="container">
+    <!-- Khu vực form bài đăng  -->
+    <div class="form-section">
+        <h3 style="margin-top: 0;">Tạo bài đăng mới</h3>
+        <form th:action="@{/employer/jobs/add}" th:object="${newJob}" method="POST">
+
+            <div class="form-group">
+                <label>Tiêu đề công việc:</label>
+                <input type="text" th:field="*{title}" placeholder="VD: Java Backend Fresher" required />
+            </div>
+
+            <div class="form-group">
+                <label>Loại vai trò (Role Type):</label>
+                <input type="text" th:field="*{roleType}" placeholder="VD: Backend Developer" required />
+            </div>
+
+            <div class="form-group">
+                <label>Cấp bậc (Level):</label>
+                <input type="text" th:field="*{level}" placeholder="VD: Fresher, Junior, Senior" required />
+            </div>
+
+            <div class="form-group">
+                <label>Địa điểm:</label>
+                <input type="text" th:field="*{location}" placeholder="VD: Hồ Chí Minh" required />
+            </div>
+
+            <div class="form-group">
+                <label>Hình thức làm việc:</label>
+                <select th:field="*{workFormat}">
+                    <option value="On-site">On-site (Tại văn phòng)</option>
+                    <option value="Hybrid">Hybrid (Linh hoạt)</option>
+                    <option value="Remote">Remote (Từ xa)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Loại việc làm:</label>
+                <select th:field="*{jobType}">
+                    <option value="Full-time">Full-time (Toàn thời gian)</option>
+                    <option value="Part-time">Part-time (Bán thời gian)</option>
+                    <option value="Internship">Internship (Thực tập sinh)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Số lượng cần tuyển:</label>
+                <input type="number" th:field="*{headcount}" min="1" value="1" required />
+            </div>
+
+            <div class="form-group">
+                <label>Yêu cầu kinh nghiệm:</label>
+                <input type="text" th:field="*{experienceRequired}" placeholder="VD: Dưới 1 năm, Không yêu cầu..." />
+            </div>
+
+            <div class="form-group">
+                <label>Yêu cầu kỹ năng/Học vấn:</label>
+                <textarea th:field="*{educationRequired}" rows="3" placeholder="VD: Tốt nghiệp CNTT, biết Java, Spring Boot..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả công việc (Job Description):</label>
+                <textarea th:field="*{jobDescription}" rows="4" placeholder="Mô tả chi tiết các công việc hàng ngày..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Quyền lợi (Benefits):</label>
+                <textarea th:field="*{benefits}" rows="3" placeholder="VD: Lương tháng 13, Bảo hiểm, Du lịch..."></textarea>
+            </div>
+
+            <button type="submit">Đăng Tuyển</button>
+        </form>
+    </div>
+
+    <!-- Khu vực danh sách bài đã đăng -->
+    <div class="list-section">
+        <h3 style="margin-top: 0;">Các vị trí đang mở</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Tiêu đề</th>
+                <th>Cấp bậc</th>
+                <th>Địa điểm</th>
+                <th>Hình thức</th>
+                <th>Số lượng</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="job : ${myJobs}">
+                <td th:text="${job.title}"></td>
+                <td th:text="${job.level}"></td>
+                <td th:text="${job.location}"></td>
+                <td th:text="${job.workFormat}"></td>
+                <td th:text="${job.headcount}"></td>
+                <td>
+                    <a href="#" style="color: #004aad;">Sửa</a> |
+                    <a href="#" style="color: red;">Xóa</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(myJobs)}">
+                <td colspan="6" style="text-align: center; padding: 20px;">Bạn chưa đăng bài tuyển dụng nào.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

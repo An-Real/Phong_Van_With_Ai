@@ -20,7 +20,8 @@ public class Job {
     private String experienceRequired;
     private String educationRequired;
     private LocalDateTime createdAt; // Ngày tạo bài
-
+    private String jobDescription;
+    private String benefits;
     // Setters
     public void setId(String id) {
         this.id = id;
@@ -70,6 +71,10 @@ public class Job {
         this.createdAt = createdAt;
     }
 
+    public void setJobDescription(String jobDescription) { this.jobDescription = jobDescription; }
+
+    public void setBenefits(String benefits) { this.benefits = benefits; }
+
     // Getters
     public String getId() {
         return id;
@@ -118,4 +123,8 @@ public class Job {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public String getJobDescription() { return jobDescription; }
+
+    public String getBenefits() { return benefits; }
 }
