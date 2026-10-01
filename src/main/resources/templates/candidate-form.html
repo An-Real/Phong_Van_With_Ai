@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật Hồ sơ Ứng viên</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; }
+        .section { margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"], input[type="date"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #004aad; color: white; padding: 15px 20px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; width: 100%; }
+        button:hover { background-color: #003080; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form th:action="@{/candidate/profile}" th:object="${candidate}" method="POST">
+
+        <!-- Thông tin hệ thống -->
+        <input type="hidden" th:field="*{role}" />
+        <div class="section">
+            <h2>Tài khoản</h2>
+            <div class="form-group">
+                <label>Email đăng nhập:</label>
+                <input type="email" th:field="*{email}" required />
+            </div>
+        </div>
+
+        <!-- Trang 1: Thông tin cơ bản -->
+        <div class="section">
+            <h2>Trang 1: Thông tin cá nhân</h2>
+            <div class="form-group">
+                <label>Họ và tên:</label>
+                <input type="text" th:field="*{page1_basicInfo.fullName}" required />
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại:</label>
+                <input type="text" th:field="*{page1_basicInfo.phone}" />
+            </div>
+            <div class="form-group">
+                <label>Ngày sinh:</label>
+                <input type="date" th:field="*{page1_basicInfo.dob}" />
+            </div>
+        </div>
+
+        <!-- Trang 2: Năng lực -->
+        <div class="section">
+            <h2>Trang 2: Năng lực cốt lõi</h2>
+            <div class="form-group">
+                <label>Học vấn (Trường đại học):</label>
+                <input type="text" th:field="*{page2_competency.education}" />
+            </div>
+            <div class="form-group">
+                <label>Kỹ năng chuyên môn (Hard Skills - Cách nhau bằng dấu phẩy):</label>
+                <input type="text" th:field="*{page2_competency.hardSkills}" placeholder="VD: Java, Spring Boot, MongoDB" />
+            </div>
+        </div>
+
+        <!-- Trang 3: Kinh nghiệm -->
+        <div class="section">
+            <h2>Trang 3: Kinh nghiệm & Dự án</h2>
+            <div class="form-group">
+                <label>Các dự án đã làm:</label>
+                <textarea th:field="*{page3_experience.projects}" rows="3" placeholder="Mô tả các dự án..."></textarea>
+            </div>
+        </div>
+
+        <!-- Trang 4: Định hướng -->
+        <div class="section">
+            <h2>Trang 4: Định hướng nghề nghiệp</h2>
+            <div class="form-group">
+                <label>Vị trí mong muốn:</label>
+                <input type="text" th:field="*{page4_orientation.desiredPosition}" />
+            </div>
+        </div>
+
+        <button type="submit">Lưu Hồ Sơ Ứng Viên</button>
+    </form>
+</div>
+
+</body>
+</html>

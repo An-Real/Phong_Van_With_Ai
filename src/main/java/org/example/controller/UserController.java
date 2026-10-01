@@ -36,4 +36,38 @@ public class UserController {
         // Trả về file giao diện có tên là "users.html"
         return "users";
     }
+
+    // Hiển thị trang Form Đăng ký
+    @GetMapping("/register")
+    public String showRegisterForm(Model model) {
+        // Tạo một đối tượng User rỗng để form HTML có chỗ chứa dữ liệu người dùng gõ vào
+        model.addAttribute("newUser", new User());
+        return "register"; // Trả về file register.html
+    }
+
+    // Xử lý khi người dùng bấm nút "Đăng ký"
+    @org.springframework.web.bind.annotation.PostMapping("/register")
+    public String saveUser(@org.springframework.web.bind.annotation.ModelAttribute("newUser") User user) {
+        // Lưu user mới vào MongoDB
+        userRepository.save(user);
+
+        // Lưu xong thì tự động chuyển hướng (redirect) về trang danh sách để xem kết quả
+        return "redirect:/users";
+    }
+
+    // Hiển thị Form tạo hồ sơ Ứng viên (Gộp 4 trang vào 1 màn hình trước)
+    @GetMapping("/candidate/profile")
+    public String showCandidateForm(Model model) {
+        User candidate = new User();
+        candidate.setRole("CANDIDATE"); // Mặc định gán vai trò là ứng viên
+        model.addAttribute("candidate", candidate);
+        return "candidate-form";
+    }
+
+    // Xử lý lưu hồ sơ ứng viên
+    @org.springframework.web.bind.annotation.PostMapping("/candidate/profile")
+    public String saveCandidateProfile(@org.springframework.web.bind.annotation.ModelAttribute("candidate") User candidate) {
+        userRepository.save(candidate);
+        return "redirect:/users"; // Lưu xong quay về trang danh sách xem thành quả
+    }
 }
