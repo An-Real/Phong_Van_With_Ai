@@ -13,11 +13,14 @@ public class User {
     private String email;
     private String password;
 
-    // Các biến đại diện cho 4 trang hồ sơ của ứng viên
+    // Các biến đại diện cho 4 Mục hồ sơ của ứng viên
     private BasicInfo page1_basicInfo;
     private Competency page2_competency;
     private Experience page3_experience;
     private Orientation page4_orientation;
+
+    // Dữ liệu của Doanh nghiệp
+    private CompanyInfo companyInfo;
 
     // Constructor: Khởi tạo sẵn các object để tránh lỗi NullPointerException khi lên Web
     public User() {
@@ -25,10 +28,11 @@ public class User {
         this.page2_competency = new Competency();
         this.page3_experience = new Experience();
         this.page4_orientation = new Orientation();
+        this.companyInfo = new CompanyInfo();
     }
 
-    // --- CÁC LỚP LỒNG NHAU (NESTED CLASSES) ĐẠI DIỆN CHO TỪNG TRANG ---
-    // Trang 1: BasicInfo
+    // --- CÁC LỚP LỒNG NHAU ĐẠI DIỆN CHO TỪNG MỤC ---
+    // Mục 1: BasicInfo
     public static class BasicInfo {
         private String fullName;
         private String phone;
@@ -79,7 +83,7 @@ public class User {
         }
     }
 
-    // Trang 2: Competency
+    // Mục 2: Competency
     public static class Competency {
         private String education;
         private String languages;
@@ -130,7 +134,7 @@ public class User {
         }
     }
 
-    // Trang 3: Experience
+    // Mục 3: Experience
     public static class Experience {
         private String projects;
         private String workHistory;
@@ -154,7 +158,7 @@ public class User {
         }
     }
 
-    // Trang 4: Orientation
+    // Mục 4: Orientation
     public static class Orientation {
         private String desiredPosition;
         private String reason;
@@ -187,7 +191,48 @@ public class User {
         }
     }
 
-    // SETTERS cho id, role, email, password, page1_basicInfo, page2_competency, page3_experience, page4_orientation
+    public static class CompanyInfo {
+        private String companyName;
+        private String industry;
+        private String description;
+        private String website;
+
+        // Setters cho CompanyInfo
+        public void setCompanyName(String companyName) {
+            this.companyName = companyName;
+        }
+
+        public void setIndustry(String industry) {
+            this.industry = industry;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public void setWebsite(String website) {
+            this.website = website;
+        }
+
+        // Getters cho CompanyInfo
+        public String getCompanyName() {
+            return companyName;
+        }
+
+        public String getIndustry() {
+            return industry;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getWebsite() {
+            return website;
+        }
+    }
+
+    // SETTERS cho id, role, email, password, page1_basicInfo, page2_competency, page3_experience, page4_orientation, companyInfo
     public void setId(String id) {
         this.id = id;
     }
@@ -220,7 +265,11 @@ public class User {
         this.page4_orientation = page4_orientation;
     }
 
-    // Getters cho id, role, email, password, page1_basicInfo, page2_competency, page3_experience, page4_orientation
+    public void setCompanyInfo(CompanyInfo companyInfo) {
+        this.companyInfo = companyInfo;
+    }
+
+    // Getters cho id, role, email, password, page1_basicInfo, page2_competency, page3_experience, page4_orientation, companyInfo
     public String getId() {
         return id;
     }
@@ -251,5 +300,9 @@ public class User {
 
     public Orientation getPage4_orientation() {
         return page4_orientation;
+    }
+
+    public CompanyInfo getCompanyInfo() {
+        return companyInfo;
     }
 }
