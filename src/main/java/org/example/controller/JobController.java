@@ -130,15 +130,24 @@ public class JobController {
         return "employer-applicants";
     }
 
-    // Xử lý nút Cho Đậu / Từ chối
+    // Hàm xử lý Đổi Trạng Thái để nó biết đang ở trang nào và quay lại cho đúng
     @PostMapping("/employer/applicants/status")
-    public String updateAppStatus(@org.springframework.web.bind.annotation.RequestParam String appId, @org.springframework.web.bind.annotation.RequestParam String status) {
+    public String updateAppStatus(
+            @org.springframework.web.bind.annotation.RequestParam String appId,
+            @org.springframework.web.bind.annotation.RequestParam String status,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "applicants") String source) {
+
         Application app = applicationRepository.findById(appId).orElse(null);
         if (app != null) {
             app.setStatus(status);
             applicationRepository.save(app);
         }
-        return "redirect:/employer/applicants";
+
+        // Nếu nguồn gọi là từ trang Phỏng vấn thì quay lại trang Phỏng vấn
+        if ("interviews".equals(source)) {
+            return "redirect:/employer/interviews?success";
+        }
+        return "redirect:/employer/applicants?success";
     }
 
     // Hiển thị chi tiết Hồ sơ ứng viên khi click vào hàng
@@ -160,5 +169,50 @@ public class JobController {
         model.addAttribute("candidate", candidate);
 
         return "employer-applicant-detail";
+    }
+
+    // Thêm hàm hiển thị Danh sách Phỏng vấn (Chỉ lấy PENDING_INTERVIEW, HIRED, INTERVIEW_FAILED)
+    @GetMapping("/employer/interviews")
+    public String viewInterviews(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"EMPLOYER".equals(loggedInUser.getRole())) return "redirect:/login";
+
+        List<Job> myJobs = jobRepository.findByEmployerId(loggedInUser.getId());
+        List<String> jobIds = myJobs.stream().map(Job::getId).collect(java.util.stream.Collectors.toList());
+        List<Application> apps = applicationRepository.findByJobIdIn(jobIds);
+
+        // Các trạng thái thuộc vòng Phỏng vấn
+        java.util.List<String> interviewStatuses = java.util.Arrays.asList("PENDING_INTERVIEW", "HIRED", "INTERVIEW_FAILED");
+
+        java.util.List<ApplicantInfo> interviewList = new java.util.ArrayList<>();
+        for (Application app : apps) {
+            if (interviewStatuses.contains(app.getStatus())) {
+                Job job = myJobs.stream().filter(j -> j.getId().equals(app.getJobId())).findFirst().orElse(null);
+                User candidate = userRepository.findById(app.getCandidateId()).orElse(null);
+                if (job != null && candidate != null) interviewList.add(new ApplicantInfo(app, job, candidate));
+            }
+        }
+
+        model.addAttribute("interviewList", interviewList);
+        return "employer-interviews"; // Gọi tới file HTML mới
+    }
+
+    // Thêm hàm hiển thị Chi tiết của vòng Phỏng vấn
+    @GetMapping("/employer/interviews/detail")
+    public String viewInterviewDetail(@org.springframework.web.bind.annotation.RequestParam String appId, HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"EMPLOYER".equals(loggedInUser.getRole())) return "redirect:/login";
+
+        Application app = applicationRepository.findById(appId).orElse(null);
+        if (app == null) return "redirect:/employer/interviews";
+
+        Job job = jobRepository.findById(app.getJobId()).orElse(null);
+        User candidate = userRepository.findById(app.getCandidateId()).orElse(null);
+
+        model.addAttribute("app", app);
+        model.addAttribute("job", job);
+        model.addAttribute("candidate", candidate);
+
+        return "employer-interview-detail"; // Gọi tới file HTML mới
     }
 }

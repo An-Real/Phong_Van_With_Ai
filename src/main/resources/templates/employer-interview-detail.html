@@ -71,24 +71,26 @@
         </div>
     </fieldset>
 
-    <!-- THANH CÔNG CỤ: 3 Nút "Qua Vòng Phỏng Vấn" "Từ Chối" "Quay Lai" -->
+    <!-- THANH CÔNG CỤ VÒNG PHỎNG VẤN -->
     <div class="action-bar">
-        <!-- Nút Qua Vòng Phỏng Vấn -->
+        <!-- Nút Trúng Tuyển -->
         <form th:action="@{/employer/applicants/status}" method="POST" style="flex: 1;">
             <input type="hidden" name="appId" th:value="${app.id}" />
-            <input type="hidden" name="status" value="PENDING_INTERVIEW" />
-            <button type="submit" class="btn" style="background-color: #17a2b8;" th:disabled="${app.status == 'PENDING_INTERVIEW'}" th:style="${app.status == 'PENDING_INTERVIEW' ? 'background-color: #17a2b8; opacity: 0.5; cursor: not-allowed;' : 'background-color: #17a2b8;'}">Qua Vòng Phỏng Vấn</button>
+            <input type="hidden" name="status" value="HIRED" />
+            <input type="hidden" name="source" value="interviews" /> <!-- Báo cho Controller biết để quay lại trang Phỏng vấn -->
+            <button type="submit" class="btn" style="background-color: #28a745;" th:disabled="${app.status == 'HIRED'}" th:style="${app.status == 'HIRED' ? 'background-color: #28a745; opacity: 0.5; cursor: not-allowed;' : 'background-color: #28a745;'}">Trúng Tuyển</button>
         </form>
 
-        <!-- Nút Từ chối -->
+        <!-- Nút Trượt Phỏng Vấn -->
         <form th:action="@{/employer/applicants/status}" method="POST" style="flex: 1;">
             <input type="hidden" name="appId" th:value="${app.id}" />
-            <input type="hidden" name="status" value="REJECTED" />
-            <button type="submit" class="btn btn-reject" th:disabled="${app.status == 'REJECTED'}" th:style="${app.status == 'REJECTED' ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Từ chối</button>
+            <input type="hidden" name="status" value="INTERVIEW_FAILED" />
+            <input type="hidden" name="source" value="interviews" /> <!-- Báo cho Controller biết -->
+            <button type="submit" class="btn" style="background-color: #6c757d;" th:disabled="${app.status == 'INTERVIEW_FAILED'}" th:style="${app.status == 'INTERVIEW_FAILED' ? 'background-color: #6c757d; opacity: 0.5; cursor: not-allowed;' : 'background-color: #6c757d;'}">Trượt Phỏng Vấn</button>
         </form>
 
-        <!-- Nút Quay lại -->
-        <a href="/employer/applicants" class="btn btn-back">Quay Lại</a>
+        <!-- Nút Quay lại đúng trang Danh sách Phỏng Vấn -->
+        <a href="/employer/interviews" class="btn btn-back">Quay Lại</a>
     </div>
 </div>
 
