@@ -4,48 +4,42 @@
     <meta charset="UTF-8">
     <title>Đăng ký Tài khoản</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .form-container { max-width: 400px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #004aad; text-align: center; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="email"], select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background-color: #004aad; color: white; padding: 10px 15px; border: none; cursor: pointer; width: 100%; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #004aad; color: white; padding: 12px; border: none; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         button:hover { background-color: #003080; }
+        .links { text-align: center; margin-top: 15px; font-size: 14px; }
+        .links a { color: #004aad; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="form-container">
-    <h2>Đăng ký Hệ thống</h2>
-
-    <!-- Form này sẽ gửi dữ liệu (POST) lên địa chỉ /register -->
-    <!-- Đối tượng 'newUser' được liên kết với form này -->
+<div class="auth-card">
+    <h2>Đăng Ký</h2>
     <form th:action="@{/register}" th:object="${newUser}" method="POST">
-
         <div class="form-group">
-            <label for="email">Email của bạn:</label>
-            <!-- Thẻ th:field sẽ tự động gán giá trị người dùng gõ vào thuộc tính 'email' của class User -->
-            <input type="email" id="email" th:field="*{email}" required placeholder="vidu@email.com" />
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" required placeholder="vidu@email.com" />
         </div>
-
         <div class="form-group">
-            <label for="password">Mật khẩu của bạn:</label>
-            <!-- Thẻ th:field sẽ tự động gán giá trị người dùng nhập vào thuộc tính 'password' của class User -->
-            <input type="password" id="password" th:field="*{password}" required placeholder="Nhập mật khẩu" />
+            <label>Mật khẩu:</label>
+            <input type="password" th:field="*{password}" required placeholder="Tạo mật khẩu" />
         </div>
-
         <div class="form-group">
-            <label for="role">Bạn là:</label>
-            <!-- Thẻ th:field sẽ tự động gán giá trị người dùng gõ vào thuộc tính 'role' của class User -->
-            <select id="role" th:field="*{role}">
+            <label>Bạn là:</label>
+            <select th:field="*{role}">
                 <option value="CANDIDATE">Ứng viên tìm việc</option>
                 <option value="EMPLOYER">Nhà tuyển dụng</option>
             </select>
         </div>
-
         <button type="submit">Đăng ký ngay</button>
     </form>
+    <div class="links">
+        <p>Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+    </div>
 </div>
-
 </body>
 </html>

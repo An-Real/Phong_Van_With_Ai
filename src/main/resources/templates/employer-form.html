@@ -18,36 +18,13 @@
 <body>
 
 <div class="container">
-    <nav class="nav-bar">
-        <a href="#"
-           style="text-decoration: none; font-weight: bold;">
-            Quản lý Bài đăng
-        </a>
-        <span> | </span>
-
-        <a href="#"
-           style="text-decoration: none; font-weight: bold;">
-            Danh sách Ứng viên
-        </a>
-        <span> | </span>
-
-        <a href="#"
-           style="text-decoration: none; font-weight: bold;">
-            Danh sách Phỏng vấn
-        </a>
-        <span> | </span>
-
-        <a href="/employer/dashboard"
-           style="text-decoration: none; font-weight: bold;">
-            Hồ sơ Công ty
-        </a>
-        <span> | </span>
-
-        <a href="/logout"
-           style="color: red; font-weight: bold; text-decoration: none;">
-            Đăng xuất
-        </a>
-    </nav>
+    <div class="nav-menu" style="background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <a href="/employer/jobs" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Quản lý Bài đăng</a>
+        <a href="/employer/applicants" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Danh sách Ứng viên</a>
+        <a href="#" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Danh sách Phỏng vấn</a>
+        <a href="/employer/dashboard" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Hồ sơ Công ty</a>
+        <a href="/logout" style="float: right; color: #ffcccc; font-weight: bold; text-decoration: none;">Đăng xuất</a>
+    </div>
 
     <p th:if="${param.success}" style="color: green; font-weight: bold; text-align: center;">Cập nhật thông tin Công ty thành công!</p>
 
@@ -59,29 +36,76 @@
         <input type="hidden" th:field="*{email}" />
         <input type="hidden" th:field="*{password}" />
 
-        <h2>Hồ sơ Doanh nghiệp</h2>
+        <fieldset th:disabled="${!editMode}" style="border: none; padding: 0; margin: 0;">
+            <h2>Hồ sơ Doanh nghiệp</h2>
 
-        <div class="form-group">
-            <label>Tên Công ty:</label>
-            <input type="text" th:field="*{companyInfo.companyName}" required />
+            <div class="form-group">
+                <label>Tên Công ty:</label>
+                <input type="text" th:field="*{companyInfo.companyName}" required />
+            </div>
+
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" th:field="*{email}" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+            </div>
+
+            <div class="form-group">
+                <label>Lĩnh vực hoạt động:</label>
+                <input type="text" th:field="*{companyInfo.industry}" placeholder="VD: Phần mềm, Ngân hàng..." />
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả ngắn gọn:</label>
+                <textarea th:field="*{companyInfo.description}" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Website:</label>
+                <input type="text" th:field="*{companyInfo.website}" />
+            </div>
+        </fieldset>
+
+        <div th:if="${editMode}" style="display: flex; gap: 10px; margin-top: 20px;">
+
+            <button type="submit"
+                    style="flex: 1;
+                   height: 44px;
+                   padding: 0;
+                   margin: 0;
+                   background-color: #28a745;
+                   color: white;
+                   border: none;
+                   border-radius: 4px;
+                   font-weight: bold;
+                   cursor: pointer;
+                   box-sizing: border-box;">
+                Lưu Hồ Sơ
+            </button>
+
+            <a href="?edit=false"
+               style="flex: 1;
+              height: 44px;
+              padding: 0;
+              margin: 0;
+              background-color: #6c757d;
+              color: white;
+              text-align: center;
+              text-decoration: none;
+              font-weight: bold;
+              border-radius: 4px;
+              box-sizing: border-box;
+              display: flex;
+              align-items: center;
+              justify-content: center;">
+                Hủy
+            </a>
+
         </div>
 
-        <div class="form-group">
-            <label>Lĩnh vực hoạt động:</label>
-            <input type="text" th:field="*{companyInfo.industry}" placeholder="VD: Phần mềm, Ngân hàng..." />
+        <div th:unless="${editMode}" style="margin-top: 20px;">
+            <!-- Nút bật chế độ sửa -->
+            <a href="?edit=true" style="display: block; background-color: #004aad; color: white; text-align: center; padding: 15px; border-radius: 4px; text-decoration: none; font-weight: bold;">Chỉnh sửa Hồ sơ</a>
         </div>
-
-        <div class="form-group">
-            <label>Mô tả ngắn gọn:</label>
-            <textarea th:field="*{companyInfo.description}" rows="4"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Website:</label>
-            <input type="text" th:field="*{companyInfo.website}" />
-        </div>
-
-        <button type="submit">Lưu Thông Tin</button>
     </form>
 </div>
 

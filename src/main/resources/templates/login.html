@@ -3,27 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng nhập Hệ thống</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #004aad; text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #004aad; color: white; padding: 12px; border: none; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #003080; }
+        .links { text-align: center; margin-top: 15px; font-size: 14px; }
+        .links a { color: #004aad; text-decoration: none; font-weight: bold; }
+    </style>
 </head>
 <body>
-<h2>Đăng nhập</h2>
-
-<!-- Hiện thông báo lỗi nếu có -->
-<p th:if="${error}" th:text="${error}" style="color: red;"></p>
-
-<!-- Đăng nhập không dùng th:object, mà gửi thẳng tham số name="email" -->
-<form action="/login" method="POST">
-    <div>
-        <label>Email:</label>
-        <input type="email" name="email" required />
+<div class="auth-card">
+    <h2>Đăng Nhập</h2>
+    <p th:if="${error}" th:text="${error}" style="color: red; text-align: center; font-weight: bold;"></p>
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" required placeholder="Nhập email của bạn" />
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu:</label>
+            <input type="password" name="password" required placeholder="Nhập mật khẩu" />
+        </div>
+        <button type="submit">Đăng nhập</button>
+    </form>
+    <div class="links">
+        <p>Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
     </div>
-    <br>
-    <div>
-        <label>Mật khẩu:</label>
-        <input type="password" name="password" required />
-    </div>
-    <br>
-    <button type="submit">Đăng nhập</button>
-</form>
-<p>Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
+</div>
 </body>
 </html>

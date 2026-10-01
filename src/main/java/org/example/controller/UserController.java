@@ -44,37 +44,13 @@ public class UserController {
     // CANDIDATE
     // Hiển thị profile Candidate
     @GetMapping("/candidate/profile")
-    public String showCandidateProfile(
-            HttpSession session,
-            Model model) {
+    public String showCandidateProfile(@org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean edit, HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"CANDIDATE".equals(loggedInUser.getRole())) return "redirect:/login";
 
-        // Kiểm tra đăng nhập
-        User loggedInUser =
-                (User) session.getAttribute("loggedInUser");
-
-        if (loggedInUser == null) {
-            return "redirect:/login";
-        }
-
-        // Kiểm tra role
-        if (!"CANDIDATE".equals(loggedInUser.getRole())) {
-            return "redirect:/login";
-        }
-
-        // Lấy dữ liệu mới nhất từ MongoDB
-        User userInDb =
-                userRepository
-                        .findById(loggedInUser.getId())
-                        .orElse(null);
-
-        if (userInDb == null) {
-            session.invalidate();
-            return "redirect:/login";
-        }
-
-        // Đưa User ra HTML
+        User userInDb = userRepository.findById(loggedInUser.getId()).orElse(loggedInUser);
         model.addAttribute("candidate", userInDb);
-
+        model.addAttribute("editMode", edit); // Gửi cờ editMode ra HTML
         return "candidate-form";
     }
 
@@ -136,36 +112,13 @@ public class UserController {
     // EMPLOYER
     // Hiển thị profile Employer
     @GetMapping("/employer/dashboard")
-    public String showEmployerDashboard(
-            HttpSession session,
-            Model model) {
+    public String showEmployerDashboard(@org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean edit, HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"EMPLOYER".equals(loggedInUser.getRole())) return "redirect:/login";
 
-        // Kiểm tra đăng nhập
-        User loggedInUser =
-                (User) session.getAttribute("loggedInUser");
-
-        if (loggedInUser == null) {
-            return "redirect:/login";
-        }
-
-        // Kiểm tra role
-        if (!"EMPLOYER".equals(loggedInUser.getRole())) {
-            return "redirect:/login";
-        }
-
-        // Lấy dữ liệu mới nhất từ Database
-        User userInDb =
-                userRepository
-                        .findById(loggedInUser.getId())
-                        .orElse(null);
-
-        if (userInDb == null) {
-            session.invalidate();
-            return "redirect:/login";
-        }
-
+        User userInDb = userRepository.findById(loggedInUser.getId()).orElse(loggedInUser);
         model.addAttribute("employer", userInDb);
-
+        model.addAttribute("editMode", edit); // Gửi cờ editMode ra HTML
         return "employer-form";
     }
 

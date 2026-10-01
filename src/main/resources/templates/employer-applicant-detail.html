@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết Hồ sơ Ứng viên</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; margin-top: 30px; }
+        .header-info { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333;}
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: #fdfdfd; }
+
+        /* Chỉnh CSS cho 3 nút ở cuối */
+        .action-bar { display: flex; gap: 15px; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center; text-decoration: none; color: white; display: block; box-sizing: border-box; }
+        .btn-accept { background-color: #28a745; }
+        .btn-accept:hover { background-color: #218838; }
+        .btn-reject { background-color: #dc3545; }
+        .btn-reject:hover { background-color: #c82333; }
+        .btn-back { background-color: #6c757d; }
+        .btn-back:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-info">
+        <h3 style="margin-top: 0; color: #333;">Đơn ứng tuyển: <span th:text="${job.title}" style="color: #004aad;"></span></h3>
+        <p><strong>Trạng thái hiện tại:</strong>
+            <span th:if="${app.status == 'APPLIED'}" style="color: #ffc107; font-weight: bold;">Chờ duyệt</span>
+            <span th:if="${app.status == 'ACCEPTED'}" style="color: #28a745; font-weight: bold;">Đã đậu</span>
+            <span th:if="${app.status == 'REJECTED'}" style="color: #dc3545; font-weight: bold;">Đã từ chối</span>
+        </p>
+    </div>
+
+    <!-- Khóa toàn bộ form bằng fieldset disabled -->
+    <fieldset disabled style="border: none; padding: 0; margin: 0;" th:object="${candidate}">
+
+        <div class="section">
+            <h2>Mục 1: Thông tin cá nhân</h2>
+            <div class="form-group"><label>Email:</label><input type="email" th:field="*{email}" /></div>
+            <div class="form-group"><label>Họ và tên:</label><input type="text" th:field="*{page1_basicInfo.fullName}" /></div>
+            <div class="form-group"><label>Số điện thoại:</label><input type="text" th:field="*{page1_basicInfo.phone}" /></div>
+            <div class="form-group"><label>Ngày sinh:</label><input type="text" th:field="*{page1_basicInfo.dob}" /></div>
+            <div class="form-group"><label>Giới tính:</label><input type="text" th:field="*{page1_basicInfo.gender}" /></div>
+            <div class="form-group"><label>Mạng xã hội:</label><input type="text" th:field="*{page1_basicInfo.socialLinks}" /></div>
+        </div>
+
+        <div class="section">
+            <h2>Mục 2: Năng lực cốt lõi</h2>
+            <div class="form-group"><label>Học vấn:</label><input type="text" th:field="*{page2_competency.education}" /></div>
+            <div class="form-group"><label>Ngoại ngữ:</label><input type="text" th:field="*{page2_competency.languages}" /></div>
+            <div class="form-group"><label>Kỹ năng mềm:</label><input type="text" th:field="*{page2_competency.softSkills}" /></div>
+            <div class="form-group"><label>Kỹ năng chuyên môn:</label><input type="text" th:field="*{page2_competency.hardSkills}" /></div>
+            <div class="form-group"><label>Điểm mạnh nổi bật:</label><textarea th:field="*{page2_competency.strengths}" rows="2"></textarea></div>
+        </div>
+
+        <div class="section">
+            <h2>Mục 3: Kinh nghiệm & Dự án</h2>
+            <div class="form-group"><label>Dự án đã làm:</label><textarea th:field="*{page3_experience.projects}" rows="3"></textarea></div>
+            <div class="form-group"><label>Kinh nghiệm làm việc:</label><textarea th:field="*{page3_experience.workHistory}" rows="3"></textarea></div>
+        </div>
+
+        <div class="section">
+            <h2>Mục 4: Định hướng nghề nghiệp</h2>
+            <div class="form-group"><label>Vị trí mong muốn:</label><input type="text" th:field="*{page4_orientation.desiredPosition}" /></div>
+            <div class="form-group"><label>Lý do:</label><textarea th:field="*{page4_orientation.reason}" rows="2"></textarea></div>
+            <div class="form-group"><label>Mục tiêu:</label><textarea th:field="*{page4_orientation.careerGoal}" rows="2"></textarea></div>
+        </div>
+    </fieldset>
+
+    <!-- THANH CÔNG CỤ: 3 Nút "Cho Đậu" "Từ Chối" "Quay Lai" -->
+    <div class="action-bar">
+        <!-- Nút Cho Đậu -->
+        <form th:action="@{/employer/applicants/status}" method="POST" style="flex: 1;">
+            <input type="hidden" name="appId" th:value="${app.id}" />
+            <input type="hidden" name="status" value="ACCEPTED" />
+            <!-- Nếu đã Đậu rồi thì làm mờ nút này đi -->
+            <button type="submit" class="btn btn-accept" th:disabled="${app.status == 'ACCEPTED'}" th:style="${app.status == 'ACCEPTED' ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Cho Đậu</button>
+        </form>
+
+        <!-- Nút Từ chối -->
+        <form th:action="@{/employer/applicants/status}" method="POST" style="flex: 1;">
+            <input type="hidden" name="appId" th:value="${app.id}" />
+            <input type="hidden" name="status" value="REJECTED" />
+            <button type="submit" class="btn btn-reject" th:disabled="${app.status == 'REJECTED'}" th:style="${app.status == 'REJECTED' ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Từ chối</button>
+        </form>
+
+        <!-- Nút Quay lại -->
+        <a href="/employer/applicants" class="btn btn-back">Quay Lại</a>
+    </div>
+</div>
+
+</body>
+</html>

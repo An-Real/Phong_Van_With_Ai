@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Ứng viên</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .nav-menu { background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .nav-menu a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
+        .nav-menu a:hover { text-decoration: underline; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #004aad; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .bg-applied { background-color: #ffc107; color: black; }
+        .bg-accepted { background-color: #28a745; }
+        .bg-rejected { background-color: #dc3545; }
+
+        /* Hiệu ứng khi di chuột qua một hàng */
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+
+<div class="nav-menu">
+    <a href="/employer/jobs">Quản lý Bài đăng</a>
+    <a href="/employer/applicants">Danh sách Ứng viên</a>
+    <a href="#">Danh sách Phỏng vấn</a>
+    <a href="/employer/dashboard">Hồ sơ Công ty</a>
+    <a href="/logout" style="float: right; color: #ffcccc;">Đăng xuất</a>
+</div>
+
+<div class="container">
+    <h2 style="color: #004aad; margin-top: 0;">Danh sách Ứng viên đã nộp</h2>
+    <p style="color: #666; font-style: italic;">(Nhấp vào một hàng bất kỳ để xem chi tiết CV và đánh giá)</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Họ tên Ứng viên</th>
+            <th>Vị trí ứng tuyển</th>
+            <th>Email liên hệ</th>
+            <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Biến cả hàng thành liên kết click được -->
+        <tr th:each="info : ${applicantList}"
+            class="clickable-row"
+            th:attr="data-app-id=${info.app.id}"
+            onclick="window.location.href='/employer/applicants/detail?appId=' + this.dataset.appId">
+
+            <td th:text="${info.candidate.page1_basicInfo.fullName}" style="font-weight: bold; color: #004aad;"></td>
+            <td th:text="${info.job.title}"></td>
+            <td th:text="${info.candidate.email}"></td>
+            <td>
+                <span th:if="${info.app.status == 'APPLIED'}" class="badge bg-applied">Chờ duyệt</span>
+                <span th:if="${info.app.status == 'ACCEPTED'}" class="badge bg-accepted">Đã đậu</span>
+                <span th:if="${info.app.status == 'REJECTED'}" class="badge bg-rejected">Đã từ chối</span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(applicantList)}">
+            <td colspan="4" style="text-align: center; padding: 20px;">Chưa có ứng viên nào nộp CV.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

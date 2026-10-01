@@ -18,35 +18,12 @@
 <body>
 
 <div class="container">
-    <nav style="text-align: right; margin-bottom: 20px;">
-
-        <a href="#"
-           style="margin-left: 15px; text-decoration: none; font-weight: bold;">
-            Bảng tin Việc làm
-        </a>
-
-        <span style="margin-left: 15px;">|</span>
-
-        <a href="#"
-           style="margin-left: 15px; text-decoration: none; font-weight: bold;">
-            Công ty đã nộp
-        </a>
-
-        <span style="margin-left: 15px;">|</span>
-
-        <a href="/candidate/profile"
-           style="margin-left: 15px; text-decoration: none; font-weight: bold;">
-            Hồ sơ cá nhân
-        </a>
-
-        <span style="margin-left: 15px;">|</span>
-
-        <a href="/logout"
-           style="margin-left: 15px; color: red; text-decoration: none; font-weight: bold;">
-            Đăng xuất
-        </a>
-
-    </nav>
+    <div class="nav-menu" style="background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <a href="/candidate/job-board" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Bảng tin Việc làm</a>
+        <a href="#" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Công ty đã nộp</a>
+        <a href="/candidate/profile" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">Hồ sơ cá nhân</a>
+        <a href="/logout" style="float: right; color: #ffcccc; font-weight: bold; text-decoration: none;">Đăng xuất</a>
+    </div>
 
     <p th:if="${param.success}" style="color: green; font-weight: bold; text-align: center;">Cập nhật hồ sơ thành công!</p>
 
@@ -58,100 +35,142 @@
         <input type="hidden" th:field="*{email}" />
         <input type="hidden" th:field="*{password}" />
 
-        <!-- Mục 1 -->
-        <div class="section">
-            <h2>Mục 1: Thông tin cá nhân</h2>
-            <div class="form-group">
-                <label>Họ và tên:</label>
-                <input type="text" th:field="*{page1_basicInfo.fullName}" required />
+        <fieldset th:disabled="${!editMode}" style="border: none; padding: 0; margin: 0;">
+            <!-- Mục 1 -->
+            <div class="section">
+                <h2>Mục 1: Thông tin cá nhân</h2>
+                <div class="form-group">
+                    <label>Họ và tên:</label>
+                    <input type="text" th:field="*{page1_basicInfo.fullName}" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" th:field="*{email}" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại:</label>
+                    <input type="text" th:field="*{page1_basicInfo.phone}" />
+                </div>
+
+                <div class="form-group">
+                    <label>Ngày sinh:</label>
+                    <input type="date" th:field="*{page1_basicInfo.dob}" />
+                </div>
+
+                <div class="form-group">
+                    <label>Giới tính:</label>
+                    <select th:field="*{page1_basicInfo.gender}">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mạng xã hội (Github, LinkedIn... cách nhau bằng dấu phẩy):</label>
+                    <input type="text" th:field="*{page1_basicInfo.socialLinks}" placeholder="VD: github.com/user, linkedin.com/in/user" />
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" th:field="*{email}" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+            <!-- Mục 2 -->
+            <div class="section">
+                <h2>Mục 2: Năng lực cốt lõi</h2>
+                <div class="form-group">
+                    <label>Học vấn (Trường đại học):</label>
+                    <input type="text" th:field="*{page2_competency.education}" />
+                </div>
+                <div class="form-group">
+                    <label>Ngoại ngữ (Cách nhau bằng dấu phẩy):</label>
+                    <input type="text" th:field="*{page2_competency.languages}" placeholder="VD: Tiếng Anh IELTS 6.0, Tiếng Nhật N4" />
+                </div>
+                <div class="form-group">
+                    <label>Kỹ năng mềm (Cách nhau bằng dấu phẩy):</label>
+                    <input type="text" th:field="*{page2_competency.softSkills}" placeholder="VD: Thuyết trình, Làm việc nhóm" />
+                </div>
+                <div class="form-group">
+                    <label>Kỹ năng chuyên môn (Cách nhau bằng dấu phẩy):</label>
+                    <input type="text" th:field="*{page2_competency.hardSkills}" placeholder="VD: Java, Spring Boot, MongoDB" />
+                </div>
+                <div class="form-group">
+                    <label>Điểm mạnh nổi bật:</label>
+                    <textarea th:field="*{page2_competency.strengths}" rows="2" placeholder="VD: Học hỏi nhanh, chịu được áp lực"></textarea>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Số điện thoại:</label>
-                <input type="text" th:field="*{page1_basicInfo.phone}" />
+            <!-- Mục 3 -->
+            <div class="section">
+                <h2>Mục 3: Kinh nghiệm & Dự án</h2>
+                <div class="form-group">
+                    <label>Các dự án đã làm (Link github - Cách nhau bằng dấu phẩy hoặc xuống dòng):</label>
+                    <textarea th:field="*{page3_experience.projects}" rows="3" placeholder="VD: Web bán hàng, Hệ thống Mock Interview AI"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Kinh nghiệm làm việc:</label>
+                    <textarea th:field="*{page3_experience.workHistory}" rows="3" placeholder="VD: Thực tập sinh IT tại công ty ABC"></textarea>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Ngày sinh:</label>
-                <input type="date" th:field="*{page1_basicInfo.dob}" />
+            <!-- Mục 4 -->
+            <div class="section">
+                <h2>Mục 4: Định hướng nghề nghiệp</h2>
+                <div class="form-group">
+                    <label>Vị trí mong muốn:</label>
+                    <input type="text" th:field="*{page4_orientation.desiredPosition}" placeholder="VD: Java Backend Fresher" />
+                </div>
+                <div class="form-group">
+                    <label>Lý do chọn vị trí này:</label>
+                    <textarea th:field="*{page4_orientation.reason}" rows="2" placeholder="VD: Yêu thích xây dựng hệ thống server"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Mục tiêu nghề nghiệp:</label>
+                    <textarea th:field="*{page4_orientation.careerGoal}" rows="2" placeholder="VD: Trở thành Senior Backend sau 3 năm"></textarea>
+                </div>
             </div>
+        </fieldset>
 
-            <div class="form-group">
-                <label>Giới tính:</label>
-                <select th:field="*{page1_basicInfo.gender}">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                </select>
-            </div>
+        <div th:if="${editMode}" style="display: flex; gap: 10px; margin-top: 20px;">
 
-            <div class="form-group">
-                <label>Mạng xã hội (Github, LinkedIn... cách nhau bằng dấu phẩy):</label>
-                <input type="text" th:field="*{page1_basicInfo.socialLinks}" placeholder="VD: github.com/user, linkedin.com/in/user" />
-            </div>
+            <button type="submit"
+                    style="flex: 1;
+                   height: 44px;
+                   padding: 0;
+                   margin: 0;
+                   background-color: #28a745;
+                   color: white;
+                   border: none;
+                   border-radius: 4px;
+                   font-weight: bold;
+                   cursor: pointer;
+                   box-sizing: border-box;">
+                Lưu Hồ Sơ
+            </button>
+
+            <a href="?edit=false"
+               style="flex: 1;
+              height: 44px;
+              padding: 0;
+              margin: 0;
+              background-color: #6c757d;
+              color: white;
+              text-align: center;
+              text-decoration: none;
+              font-weight: bold;
+              border-radius: 4px;
+              box-sizing: border-box;
+              display: flex;
+              align-items: center;
+              justify-content: center;">
+                Hủy
+            </a>
+
         </div>
 
-        <!-- Mục 2 -->
-        <div class="section">
-            <h2>Mục 2: Năng lực cốt lõi</h2>
-            <div class="form-group">
-                <label>Học vấn (Trường đại học):</label>
-                <input type="text" th:field="*{page2_competency.education}" />
-            </div>
-            <div class="form-group">
-                <label>Ngoại ngữ (Cách nhau bằng dấu phẩy):</label>
-                <input type="text" th:field="*{page2_competency.languages}" placeholder="VD: Tiếng Anh IELTS 6.0, Tiếng Nhật N4" />
-            </div>
-            <div class="form-group">
-                <label>Kỹ năng mềm (Cách nhau bằng dấu phẩy):</label>
-                <input type="text" th:field="*{page2_competency.softSkills}" placeholder="VD: Thuyết trình, Làm việc nhóm" />
-            </div>
-            <div class="form-group">
-                <label>Kỹ năng chuyên môn (Cách nhau bằng dấu phẩy):</label>
-                <input type="text" th:field="*{page2_competency.hardSkills}" placeholder="VD: Java, Spring Boot, MongoDB" />
-            </div>
-            <div class="form-group">
-                <label>Điểm mạnh nổi bật:</label>
-                <textarea th:field="*{page2_competency.strengths}" rows="2" placeholder="VD: Học hỏi nhanh, chịu được áp lực"></textarea>
-            </div>
+        <div th:unless="${editMode}" style="margin-top: 20px;">
+            <!-- Nút bật chế độ sửa -->
+            <a href="?edit=true" style="display: block; background-color: #004aad; color: white; text-align: center; padding: 15px; border-radius: 4px; text-decoration: none; font-weight: bold;">Chỉnh sửa Hồ sơ</a>
         </div>
-
-        <!-- Mục 3 -->
-        <div class="section">
-            <h2>Mục 3: Kinh nghiệm & Dự án</h2>
-            <div class="form-group">
-                <label>Các dự án đã làm (Link github - Cách nhau bằng dấu phẩy hoặc xuống dòng):</label>
-                <textarea th:field="*{page3_experience.projects}" rows="3" placeholder="VD: Web bán hàng, Hệ thống Mock Interview AI"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Kinh nghiệm làm việc:</label>
-                <textarea th:field="*{page3_experience.workHistory}" rows="3" placeholder="VD: Thực tập sinh IT tại công ty ABC"></textarea>
-            </div>
-        </div>
-
-        <!-- Mục 4 -->
-        <div class="section">
-            <h2>Mục 4: Định hướng nghề nghiệp</h2>
-            <div class="form-group">
-                <label>Vị trí mong muốn:</label>
-                <input type="text" th:field="*{page4_orientation.desiredPosition}" placeholder="VD: Java Backend Fresher" />
-            </div>
-            <div class="form-group">
-                <label>Lý do chọn vị trí này:</label>
-                <textarea th:field="*{page4_orientation.reason}" rows="2" placeholder="VD: Yêu thích xây dựng hệ thống server"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Mục tiêu nghề nghiệp:</label>
-                <textarea th:field="*{page4_orientation.careerGoal}" rows="2" placeholder="VD: Trở thành Senior Backend sau 3 năm"></textarea>
-            </div>
-        </div>
-
-        <button type="submit">Lưu Hồ Sơ Ứng Viên</button>
     </form>
 </div>
 
