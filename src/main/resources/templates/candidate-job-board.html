@@ -7,16 +7,14 @@
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
         .nav-menu { background: #004aad; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .nav-menu a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
-        .nav-menu a:hover { text-decoration: underline; }
-        .job-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 5px solid #004aad; }
-        .job-title { font-size: 20px; color: #004aad; font-weight: bold; margin-bottom: 10px; }
-        .job-info { color: #555; margin-bottom: 5px; font-size: 14px; }
-        .apply-btn { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .apply-btn:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #004aad; }
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover { background-color: #e9ecef; }
     </style>
 </head>
 <body>
-
 <div class="nav-menu">
     <a href="/candidate/job-board">Bảng tin Việc làm</a>
     <a href="/candidate/applied-jobs">Công ty đã nộp</a>
@@ -24,39 +22,42 @@
     <a href="/logout" style="float: right; color: #ffcccc;">Đăng xuất</a>
 </div>
 
-<h2 style="color: #004aad;">Khám phá Cơ hội Nghề nghiệp</h2>
-<p th:if="${param.success}" style="color: green; font-weight: bold;">Chúc mừng! Bạn đã nộp CV thành công.</p>
+<h2 style="color: #004aad;">Các vị trí đang tuyển dụng</h2>
+<p style="color: #666; font-style: italic;">(Nhấp vào công việc để xem chi tiết và Ứng tuyển)</p>
 
-<!-- Vòng lặp in ra từng Job -->
-<div th:each="job : ${jobs}" class="job-card">
-    <div class="job-title" th:text="${job.title}"></div>
-    <p style="margin: 5px 0; font-size: 14px;">
-        <strong>Ngày đăng:</strong>
-        <span th:text="${job.createdAt != null ? #temporals.format(job.createdAt, 'dd/MM/yyyy') : 'Chưa rõ'}"></span>
-    </p>
-    <div class="job-info"><b>Loại vai trò:</b> <span th:text="${job.roleType}"></span> | <b>Cấp bậc:</b> <span th:text="${job.level}"></span></div>
-    <div class="job-info"><b>Địa điểm:</b> <span th:text="${job.location}"></span> | <b>Hình thức:</b> <span th:text="${job.workFormat}"></span></div>
-    <div class="job-info"><b>Yêu cầu kỹ năng:</b> <span th:text="${job.educationRequired}"></span></div>
-    <div class="job-info" style="margin-top: 10px;"><b>Mô tả công việc:</b> <span th:text="${job.jobDescription}"></span></div>
-    <div class="job-info"><b>Quyền lợi:</b> <span th:text="${job.benefits}"></span></div>
-
-    <!-- NẾU ĐÃ NỘP: Hiện nút màu xám, không cho bấm -->
-    <div th:if="${appliedJobIds.contains(job.id)}" style="margin-top: 15px;">
-        <button disabled style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: not-allowed; width: 100%;">
-            Đã Ứng Tuyển
-        </button>
-    </div>
-
-    <!-- NẾU CHƯA NỘP: Hiện form nộp CV bình thường -->
-    <form th:unless="${appliedJobIds.contains(job.id)}" th:action="@{/candidate/apply}" method="POST" style="margin-top: 15px;">
-        <input type="hidden" name="jobId" th:value="${job.id}" />
-        <button type="submit" class="apply-btn" style="width: 100%;">Ứng Tuyển Ngay</button>
-    </form>
-</div>
-
-<div th:if="${#lists.isEmpty(jobs)}" style="text-align: center; color: #777; margin-top: 50px;">
-    <h3>Hiện tại chưa có bài tuyển dụng nào trên hệ thống.</h3>
-</div>
-
+<table>
+    <thead>
+    <tr>
+        <th>Ngày đăng</th>
+        <th>Công ty</th>
+        <th>Lĩnh vực</th>
+        <th>Vị trí</th>
+        <th>Vai trò</th>
+        <th>Cấp bậc</th>
+        <th>Địa điểm</th>
+        <th>Hình thức</th>
+        <th>Số lượng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="info : ${boardList}" class="clickable-row"
+        th:data-url="@{/candidate/job-board/detail(jobId=${info.job.id})}"
+        onclick="window.location.href=this.getAttribute('data-url')">
+        <td th:text="${info.job.createdAt != null ? #temporals.format(info.job.createdAt, 'dd/MM/yyyy') : 'Mới'}"></td>
+        <td th:text="${info.employer != null and info.employer.companyInfo != null ? info.employer.companyInfo.companyName : 'Chưa cập nhật'}"></td>
+        <td th:text="${info.employer != null and info.employer.companyInfo != null ? info.employer.companyInfo.industry : 'Chưa cập nhật'}"></td>
+        <td th:text="${info.job.title}" style="color: #004aad; font-weight: bold;"></td>
+        <td th:text="${info.job.roleType}"></td>
+        <td th:text="${info.job.level}"></td>
+        <td th:text="${info.job.location}"></td>
+        <td th:text="${info.job.jobType}"></td>
+        <!-- Số lượng này sẽ tự giảm khi có người đậu -->
+        <td th:text="${info.job.headcount}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(boardList)}">
+        <td colspan="9" style="text-align: center; padding: 20px;">Hiện tại chưa có công việc nào.</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

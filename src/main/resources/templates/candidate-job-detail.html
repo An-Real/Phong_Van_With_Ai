@@ -23,13 +23,13 @@
 <body>
 <div class="container">
     <h2 style="color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; margin-top: 0;">Hồ sơ Doanh nghiệp</h2>
-    <div class="row-detail"><span class="label">Tên Công ty:</span> <span class="content-text" th:text="${employer != null and employer.companyInfo != null ? employer.companyInfo.companyName : 'Chưa cập nhật'}" style="font-weight: bold;"></span></div>
-    <div class="row-detail"><span class="label">Email:</span> <span class="content-text" th:text="${employer != null ? employer.email : 'Chưa cập nhật'}"></span></div>
-    <div class="row-detail"><span class="label">Lĩnh vực hoạt động:</span> <span class="content-text" th:text="${employer != null and employer.companyInfo != null ? employer.companyInfo.industry : 'Chưa cập nhật'}"></span></div>
+    <div class="row-detail"><span class="label">Tên Công ty:</span> <span class="content-text" th:text="${employer.CompanyInfo.companyName}" style="font-weight: bold;"></span></div>
+    <div class="row-detail"><span class="label">Email:</span> <span class="content-text" th:text="${employer.email}"></span></div>
+    <div class="row-detail"><span class="label">Lĩnh vực hoạt động:</span> <span class="content-text" th:text="${employer.CompanyInfo.industry}"></span></div>
     <div class="row-detail"><span class="label">Mô tả ngắn gọn:</span>
-        <div class="content-box" th:text="${employer != null and employer.companyInfo != null ? employer.companyInfo.description : 'Chưa cập nhật'}"></div>
+        <div class="content-box" th:text="${employer.CompanyInfo.description}"></div>
     </div>
-    <div class="row-detail"><span class="label">Website:</span> <span class="content-text" th:text="${employer != null and employer.companyInfo != null ? employer.companyInfo.website : 'Chưa cập nhật'}"></span></div>
+    <div class="row-detail"><span class="label">Website:</span> <span class="content-text" th:text="${employer.CompanyInfo.website}"></span></div>
 
     <h2 style="color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; margin-top: 30px;">Thông tin Công việc</h2>
     <div class="row-detail"><span class="label">Tiêu đề:</span> <span class="content-text" th:text="${job.title}" style="color: #004aad; font-weight: bold; font-size: 18px;"></span></div>
@@ -51,37 +51,21 @@
         <div class="content-box" th:text="${job.benefits}"></div>
     </div>
 
-    <!-- Thanh nút hành động -->
+    <!-- Thanh nút hành động thay đổi linh hoạt -->
     <div class="action-bar">
-        <!-- Logic trạng thái nút bấm bên trái  -->
-        <!-- Chờ duyệt -> Nút Hủy (Tương tác được) -->
-        <form th:if="${app.status == 'APPLIED'}" th:action="@{/candidate/applied-jobs/cancel}" method="POST" style="flex: 1;">
-            <input type="hidden" name="appId" th:value="${app.id}" />
-            <button type="submit" class="btn btn-cancel" style="width: 100%;" onclick="return confirm('Bạn chắc chắn muốn hủy ứng tuyển?');">Hủy Ứng Tuyển</button>
+        <!-- Nếu chưa nộp (app == null) -->
+        <form th:if="${app == null}" th:action="@{/candidate/apply}" method="POST" style="flex: 1;">
+            <input type="hidden" name="jobId" th:value="${job.id}" />
+            <button type="submit" class="btn btn-apply" style="width: 100%;">Ứng Tuyển Ngay</button>
         </form>
 
-        <!-- Đã từ chối (Vô hiệu hóa) -->
-        <div th:if="${app.status == 'REJECTED'}" class="btn" style="background-color: #6c757d; cursor: not-allowed;">
-            Rất tiếc, hồ sơ của bạn chưa phù hợp
-        </div>
+        <!-- Nếu đã nộp (app != null) => Hiện nút Hủy -->
+        <form th:if="${app != null and app.status == 'APPLIED'}" th:action="@{/candidate/applied-jobs/cancel}" method="POST" style="flex: 1;">
+            <input type="hidden" name="appId" th:value="${app.id}" />
+            <button type="submit" class="btn btn-cancel" style="width: 100%;" onclick="return confirm('Hủy ứng tuyển vị trí này?');">Hủy Ứng Tuyển</button>
+        </form>
 
-        <!-- Chờ phỏng vấn (Vô hiệu hóa) -->
-        <div th:if="${app.status == 'PENDING_INTERVIEW'}" class="btn" style="background-color: #17a2b8; cursor: not-allowed;">
-            Hãy đợi nhà tuyển dụng liên hệ để phỏng vấn
-        </div>
-
-        <!-- Trượt phỏng vấn (Vô hiệu hóa) -->
-        <div th:if="${app.status == 'INTERVIEW_FAILED'}" class="btn" style="background-color: #6c757d; cursor: not-allowed;">
-            Rất tiếc, bạn chưa phù hợp với công ty chúng tôi
-        </div>
-
-        <!-- Trúng tuyển (Vô hiệu hóa) -->
-        <div th:if="${app.status == 'HIRED'}" class="btn" style="background-color: #28a745; cursor: not-allowed;">
-            Chúc mừng, hãy đến với công ty chúng tôi
-        </div>
-
-        <!-- Nút Phải: Quay lại -->
-        <a href="/candidate/applied-jobs" class="btn btn-back">Quay Lại</a>
+        <a href="/candidate/job-board" class="btn btn-back">Quay Lại</a>
     </div>
 </div>
 </body>

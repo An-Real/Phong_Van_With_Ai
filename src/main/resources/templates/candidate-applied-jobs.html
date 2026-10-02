@@ -42,11 +42,12 @@
         <thead>
         <tr>
             <th>Ngày ứng tuyển</th>
-            <th>Tiêu đề</th>
+            <th>Công ty</th>
+            <th>Vị trí</th>
+            <th>Vai trò</th>
             <th>Cấp bậc</th>
-            <th>Địa điểm</th>
             <th>Hình thức</th>
-            <th>Số lượng</th>
+            <th>Địa điểm</th>
             <th>Trạng thái</th>
         </tr>
         </thead>
@@ -54,13 +55,13 @@
         <tr th:each="info : ${appliedList}" class="clickable-row"
             th:data-url="@{/candidate/applied-jobs/detail(appId=${info.app.id})}"
             onclick="window.location.href=this.getAttribute('data-url')">
-
-            <td th:text="${info.app.appliedAt != null ? #temporals.format(info.app.appliedAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}"></td>
-            <td th:text="${info.job.title}" style="font-weight: bold;"></td>
+            <td th:text="${info.app.appliedAt != null ? #temporals.format(info.app.appliedAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
+            <td th:text="${info.employer != null and info.employer.companyInfo != null ? info.employer.companyInfo.companyName : 'Chưa cập nhật'}"></td>
+            <td th:text="${info.job.title}" style="color: #004aad;"></td>
+            <td th:text="${info.job.roleType}"></td>
             <td th:text="${info.job.level}"></td>
+            <td th:text="${info.job.jobType}"></td>
             <td th:text="${info.job.location}"></td>
-            <td th:text="${info.job.workFormat}"></td>
-            <td th:text="${info.job.headcount}"></td>
             <td>
                 <span th:if="${info.app.status == 'APPLIED'}" class="badge bg-applied">Chờ duyệt</span>
                 <span th:if="${info.app.status == 'PENDING_INTERVIEW'}" class="badge bg-interview">Chờ phỏng vấn</span>

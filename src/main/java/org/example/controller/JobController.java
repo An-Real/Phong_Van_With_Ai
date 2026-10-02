@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.dto.AppliedJobInfoDTO;
 import org.example.dto.ApplicantInfoDTO;
+import org.example.dto.JobBoardInfoDTO;
 import org.example.model.Application;
 import org.example.model.Job;
 import org.example.model.User;
@@ -324,7 +325,7 @@ public class JobController {
     // =========================================================
 
     /**
-     * Hiển thị tất cả việc làm.
+     * Hiển thị bài đăng.
      */
     @GetMapping("/candidate/job-board")
     public String showJobBoard(
@@ -343,26 +344,45 @@ public class JobController {
             return "redirect:/candidate/profile?edit=true&msg=require_profile";
         }
 
-        // Tất cả Job
-        List<Job> allJobs = jobRepository.findAll().stream()
+        // Chỉ lấy các Job đang OPEN
+        List<Job> openJobs = jobRepository.findAll().stream()
                 .filter(j -> "OPEN".equals(j.getStatus()))
                 .collect(Collectors.toList());
 
-        // Các đơn ứng tuyển của ứng viên hiện tại
-        List<Application> myApps =
-                applicationRepository.findByCandidateId(
-                        loggedInUser.getId()
-                );
+        List<JobBoardInfoDTO> boardList = new ArrayList<>();
+        for (Job job : openJobs) {
+            User employer = userRepository.findById(job.getEmployerId()).orElse(null);
+            if (employer != null) {
+                boardList.add(new JobBoardInfoDTO(job, employer, null)); // Chưa cần Application ở danh sách ngoài
+            }
+        }
 
-        // Danh sách Job ID đã nộp
-        List<String> appliedJobIds = myApps.stream()
-                .map(Application::getJobId)
-                .collect(Collectors.toList());
-
-        model.addAttribute("jobs", allJobs);
-        model.addAttribute("appliedJobIds", appliedJobIds);
+        model.addAttribute("boardList", boardList);
 
         return "candidate-job-board";
+    }
+
+    // Xem chi tiết bài đăng từ Bảng tin
+    @GetMapping("/candidate/job-board/detail")
+    public String viewJobBoardDetail(@RequestParam String jobId, HttpSession session, Model model) {
+        User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "CANDIDATE")) return "redirect:/login";
+
+        Job job = jobRepository.findById(jobId).orElse(null);
+        if (job == null) return "redirect:/candidate/job-board";
+
+        User employer = userRepository.findById(job.getEmployerId()).orElse(null);
+
+        // Tìm xem ứng viên đã nộp đơn này chưa
+        Application app = applicationRepository.findByCandidateId(loggedInUser.getId()).stream()
+                .filter(a -> a.getJobId().equals(jobId))
+                .findFirst().orElse(null);
+
+        model.addAttribute("job", job);
+        model.addAttribute("employer", employer);
+        model.addAttribute("app", app); // Nếu null -> Chưa nộp, Nếu có -> Đã nộp
+
+        return "candidate-job-detail"; // Sẽ tạo file HTML mới
     }
 
 
@@ -370,48 +390,27 @@ public class JobController {
      * Ứng viên nộp CV vào một Job.
      */
     @PostMapping("/candidate/apply")
-    public String applyForJob(
-            @RequestParam("jobId") String jobId,
-            HttpSession session
-    ) {
-
+    public String applyForJob(@RequestParam("jobId") String jobId, HttpSession session) {
         User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "CANDIDATE")) return "redirect:/login";
 
-        if (!hasRole(loggedInUser, "CANDIDATE")) {
-            return "redirect:/login";
-        }
-
-        // Kiểm tra Job có tồn tại hay không
         Job job = jobRepository.findById(jobId).orElse(null);
+        if (job == null) return "redirect:/candidate/job-board";
 
-        if (job == null) {
-            return "redirect:/candidate/job-board";
-        }
-
-        // Kiểm tra ứng viên đã nộp Job này chưa
-        List<Application> myApps =
-                applicationRepository.findByCandidateId(
-                        loggedInUser.getId()
-                );
-
-        boolean alreadyApplied = myApps.stream()
+        boolean alreadyApplied = applicationRepository.findByCandidateId(loggedInUser.getId()).stream()
                 .anyMatch(app -> jobId.equals(app.getJobId()));
 
-        if (alreadyApplied) {
-            return "redirect:/candidate/job-board";
+        if (!alreadyApplied) {
+            Application app = new Application();
+            app.setCandidateId(loggedInUser.getId());
+            app.setJobId(jobId);
+            app.setStatus("APPLIED");
+            app.setAppliedAt(LocalDateTime.now());
+            applicationRepository.save(app);
         }
 
-        // Tạo Application mới
-        Application app = new Application();
-
-        app.setCandidateId(loggedInUser.getId());
-        app.setJobId(jobId);
-        app.setStatus("APPLIED");
-        app.setAppliedAt(LocalDateTime.now());
-
-        applicationRepository.save(app);
-
-        return "redirect:/candidate/job-board";
+        // Đổi hướng về lại trang chi tiết để nút bấm lập tức chuyển thành "Hủy ứng tuyển"
+        return "redirect:/candidate/job-board/detail?jobId=" + jobId;
     }
 
 
@@ -794,10 +793,7 @@ public class JobController {
      * Hiển thị các Job mà ứng viên đã nộp.
      */
     @GetMapping("/candidate/applied-jobs")
-    public String viewAppliedJobs(
-            HttpSession session,
-            Model model
-    ) {
+    public String viewAppliedJobs(HttpSession session, Model model) {
 
         User loggedInUser = getLoggedInUser(session);
 
@@ -805,34 +801,27 @@ public class JobController {
             return "redirect:/login";
         }
 
-        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
-        if (!isProfileComplete(loggedInUser)) {
-            return "redirect:/candidate/profile?edit=true&msg=require_profile";
-        }
-
-        // Application của candidate hiện tại
-        List<Application> myApps =
-                applicationRepository.findByCandidateId(
-                        loggedInUser.getId()
-                );
+        List<Application> myApps = applicationRepository.findByCandidateId(loggedInUser.getId());
 
         List<AppliedJobInfoDTO> appliedList = new ArrayList<>();
 
         for (Application app : myApps) {
+            Job job = jobRepository.findById(app.getJobId()).orElse(null);
 
-            Job job =
-                    jobRepository.findById(app.getJobId())
-                            .orElse(null);
-
-            if (job != null) {
-
-                appliedList.add(
-                        new AppliedJobInfoDTO(
-                                app,
-                                job
-                        )
-                );
+            if (job == null) {
+                continue;
             }
+
+            User employer = userRepository.findById(job.getEmployerId()).orElse(null);
+
+            // Không có employer thì bỏ qua
+            if (employer == null) {
+                continue;
+            }
+
+            // Nếu employer chưa có companyInfo thì vẫn cho hiển thị
+            // và HTML sẽ hiện "Chưa cập nhật"
+            appliedList.add(new AppliedJobInfoDTO(app, job, employer));
         }
 
         model.addAttribute("appliedList", appliedList);
@@ -849,47 +838,21 @@ public class JobController {
      * Xem chi tiết Job đã ứng tuyển.
      */
     @GetMapping("/candidate/applied-jobs/detail")
-    public String viewAppliedJobDetail(
-            @RequestParam("appId") String appId,
-            HttpSession session,
-            Model model
-    ) {
-
+    public String viewAppliedJobDetail(@RequestParam String appId, HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "CANDIDATE")) return "redirect:/login";
 
-        if (!hasRole(loggedInUser, "CANDIDATE")) {
-            return "redirect:/login";
-        }
+        Application app = applicationRepository.findById(appId).orElse(null);
+        if (app == null || !loggedInUser.getId().equals(app.getCandidateId())) return "redirect:/candidate/applied-jobs";
 
-        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
-        if (!isProfileComplete(loggedInUser)) {
-            return "redirect:/candidate/profile?edit=true&msg=require_profile";
-        }
+        Job job = jobRepository.findById(app.getJobId()).orElse(null);
+        if (job == null) return "redirect:/candidate/applied-jobs";
 
-        Application app =
-                applicationRepository.findById(appId)
-                        .orElse(null);
-
-        if (app == null) {
-            return "redirect:/candidate/applied-jobs";
-        }
-
-        // Bảo mật:
-        // Application phải thuộc candidate hiện tại
-        if (!loggedInUser.getId().equals(app.getCandidateId())) {
-            return "redirect:/candidate/applied-jobs";
-        }
-
-        Job job =
-                jobRepository.findById(app.getJobId())
-                        .orElse(null);
-
-        if (job == null) {
-            return "redirect:/candidate/applied-jobs";
-        }
+        User employer = userRepository.findById(job.getEmployerId()).orElse(null);
 
         model.addAttribute("app", app);
         model.addAttribute("job", job);
+        model.addAttribute("employer", employer);
 
         return "candidate-applied-job-detail";
     }
