@@ -71,6 +71,125 @@ public class JobController {
                 ));
     }
 
+    private boolean isProfileComplete(User user) {
+        if (user == null) {
+            return false;
+        }
+
+        // CANDIDATE
+        if ("CANDIDATE".equals(user.getRole())) {
+            // Mục 1
+            if (user.getPage1_basicInfo() == null) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage1_basicInfo().getFullName())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage1_basicInfo().getPhone())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage1_basicInfo().getDob())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage1_basicInfo().getGender())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage1_basicInfo().getSocialLinks())) {
+                return false;
+            }
+
+            // Mục 2
+            if (user.getPage2_competency() == null) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage2_competency().getEducation())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage2_competency().getLanguages())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage2_competency().getSoftSkills())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage2_competency().getHardSkills())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage2_competency().getStrengths())) {
+                return false;
+            }
+
+
+            // Mục 4
+            if (user.getPage4_orientation() == null) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage4_orientation().getDesiredPosition())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage4_orientation().getReason())) {
+                return false;
+            }
+
+            if (!isNotBlank(user.getPage4_orientation().getCareerGoal())) {
+                return false;
+            }
+
+            return true;
+        }
+
+        // EMPLOYER
+        if ("EMPLOYER".equals(user.getRole())) {
+            if (!isNotBlank(user.getEmail())) {
+                return false;
+            }
+
+            if (user.getCompanyInfo() == null) {
+                return false;
+            }
+
+            if (!isNotBlank(
+                    user.getCompanyInfo().getCompanyName()
+            )) {
+                return false;
+            }
+
+            if (!isNotBlank(
+                    user.getCompanyInfo().getIndustry()
+            )) {
+                return false;
+            }
+
+            if (!isNotBlank(
+                    user.getCompanyInfo().getDescription()
+            )) {
+                return false;
+            }
+
+            if (!isNotBlank(
+                    user.getCompanyInfo().getWebsite()
+            )) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isNotBlank(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
 
     // =========================================================
     // EMPLOYER - QUẢN LÝ BÀI ĐĂNG
@@ -81,6 +200,11 @@ public class JobController {
     public String manageJobs(HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
         if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
 
         List<Job> myJobs = jobRepository.findByEmployerId(loggedInUser.getId());
         model.addAttribute("myJobs", myJobs);
@@ -93,6 +217,11 @@ public class JobController {
         User loggedInUser = getLoggedInUser(session);
         if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
 
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
+
         model.addAttribute("newJob", new Job());
         return "employer-job-create"; // Sẽ tạo file HTML mới
     }
@@ -104,11 +233,28 @@ public class JobController {
         if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
 
         newJob.setEmployerId(loggedInUser.getId());
-        if (newJob.getCreatedAt() == null) {
-            newJob.setCreatedAt(LocalDateTime.now()); // Chỉ gán ngày tạo nếu là bài mới
+
+        if (newJob.getId() == null || newJob.getId().isEmpty()) {
+            // Tạo mới
+            newJob.setCreatedAt(LocalDateTime.now());
+            newJob.setStatus("OPEN");
+        } else {
+            // Cập nhật
+            Job oldJob = jobRepository.findById(newJob.getId()).orElse(null);
+            if (oldJob != null) {
+                // Nếu đang CLOSED/HIDDEN mà số lượng mới > 0 -> Mở lại và renew ngày đăng
+                if (!"OPEN".equals(oldJob.getStatus()) && newJob.getHeadcount() > 0) {
+                    newJob.setStatus("OPEN");
+                    newJob.setCreatedAt(LocalDateTime.now()); // Đăng lại với ngày mới nhất
+                } else {
+                    newJob.setStatus(oldJob.getStatus()); // Giữ nguyên trạng thái cũ
+                }
+                // Nếu sửa mà số lượng = 0 thì tự đóng
+                if (newJob.getHeadcount() <= 0) newJob.setStatus("CLOSED");
+            }
         }
 
-        jobRepository.save(newJob); // Nếu newJob có ID, MongoDB tự hiểu là Cập nhật. Nếu không có ID, nó tạo mới.
+        jobRepository.save(newJob);
         return "redirect:/employer/jobs?success=true";
     }
 
@@ -117,6 +263,11 @@ public class JobController {
     public String viewJobDetail(@RequestParam String jobId, HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
         if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
 
         Job job = jobRepository.findById(jobId).orElse(null);
         if (job == null || !loggedInUser.getId().equals(job.getEmployerId())) return "redirect:/employer/jobs";
@@ -130,6 +281,11 @@ public class JobController {
     public String editJobForm(@RequestParam String jobId, HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
         if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
 
         Job job = jobRepository.findById(jobId).orElse(null);
         if (job == null || !loggedInUser.getId().equals(job.getEmployerId())) return "redirect:/employer/jobs";
@@ -170,8 +326,15 @@ public class JobController {
             return "redirect:/login";
         }
 
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
+
         // Tất cả Job
-        List<Job> allJobs = jobRepository.findAll();
+        List<Job> allJobs = jobRepository.findAll().stream()
+                .filter(j -> "OPEN".equals(j.getStatus()))
+                .collect(Collectors.toList());
 
         // Các đơn ứng tuyển của ứng viên hiện tại
         List<Application> myApps =
@@ -259,6 +422,11 @@ public class JobController {
             return "redirect:/login";
         }
 
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
+
         // Lấy Job của nhà tuyển dụng
         List<Job> myJobs = jobRepository.findByEmployerId(
                 loggedInUser.getId()
@@ -285,25 +453,16 @@ public class JobController {
         List<Application> apps =
                 applicationRepository.findByJobIdIn(jobIds);
 
+        List<String> cvStatuses = Arrays.asList("APPLIED", "REJECTED");
         List<ApplicantInfoDTO> applicantList = new ArrayList<>();
-
         for (Application app : apps) {
-
-            Job job = jobMap.get(app.getJobId());
-
-            User candidate =
-                    userRepository.findById(app.getCandidateId())
-                            .orElse(null);
-
-            if (job != null && candidate != null) {
-
-                applicantList.add(
-                        new ApplicantInfoDTO(
-                                app,
-                                job,
-                                candidate
-                        )
-                );
+            // CHỈ THÊM VÀO LIST NẾU LÀ APPLIED HOẶC REJECTED
+            if (cvStatuses.contains(app.getStatus())) {
+                Job job = jobMap.get(app.getJobId());
+                User candidate = userRepository.findById(app.getCandidateId()).orElse(null);
+                if (job != null && candidate != null) {
+                    applicantList.add(new ApplicantInfoDTO(app, job, candidate));
+                }
             }
         }
 
@@ -352,6 +511,38 @@ public class JobController {
             return "redirect:/employer/applicants";
         }
 
+        // Chuyển từ trạng thái khác -> HIRED
+        if ("HIRED".equals(status)
+                && !"HIRED".equals(app.getStatus())) {
+
+            if (job.getHeadcount() > 0) {
+                // giảm số lượng tuyển 1
+                job.setHeadcount(job.getHeadcount() - 1);
+
+                // Nếu đã tuyển đủ người
+                if (job.getHeadcount() == 0) {
+                    job.setStatus("CLOSED");
+                }
+
+                jobRepository.save(job);
+            }
+        }
+
+        // Chuyển từ HIRED -> trạng thái khác
+        if ("HIRED".equals(app.getStatus())
+                && !"HIRED".equals(status)) {
+            // tăng số lượng tuyển 1
+            job.setHeadcount(job.getHeadcount() + 1);
+
+            // Nếu Job trước đó đã CLOSED vì đủ người
+            // thì mở lại
+            if ("CLOSED".equals(job.getStatus())) {
+                job.setStatus("OPEN");
+            }
+
+            jobRepository.save(job);
+        }
+
         // Cập nhật trạng thái
         app.setStatus(status);
         applicationRepository.save(app);
@@ -383,6 +574,11 @@ public class JobController {
 
         if (!hasRole(loggedInUser, "EMPLOYER")) {
             return "redirect:/login";
+        }
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
         }
 
         // Tìm Application
@@ -444,6 +640,11 @@ public class JobController {
 
         if (!hasRole(loggedInUser, "EMPLOYER")) {
             return "redirect:/login";
+        }
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
         }
 
         // Job của công ty
@@ -528,6 +729,11 @@ public class JobController {
             return "redirect:/login";
         }
 
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
+
         Application app =
                 applicationRepository.findById(appId)
                         .orElse(null);
@@ -587,6 +793,11 @@ public class JobController {
             return "redirect:/login";
         }
 
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
+        }
+
         // Application của candidate hiện tại
         List<Application> myApps =
                 applicationRepository.findByCandidateId(
@@ -636,6 +847,11 @@ public class JobController {
 
         if (!hasRole(loggedInUser, "CANDIDATE")) {
             return "redirect:/login";
+        }
+
+        // ÉP BUỘC CHUYỂN HƯỚNG NẾU HỒ SƠ TRỐNG
+        if (!isProfileComplete(loggedInUser)) {
+            return "redirect:/candidate/profile?edit=true&msg=require_profile";
         }
 
         Application app =

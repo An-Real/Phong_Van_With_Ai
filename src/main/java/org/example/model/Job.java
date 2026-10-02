@@ -22,6 +22,7 @@ public class Job {
     private LocalDateTime createdAt; // Ngày tạo bài
     private String jobDescription;
     private String benefits;
+    private String status = "OPEN";
     // Setters
     public void setId(String id) {
         this.id = id;
@@ -75,6 +76,8 @@ public class Job {
 
     public void setBenefits(String benefits) { this.benefits = benefits; }
 
+    public void setStatus(String status) { this.status = status; }
+
     // Getters
     public String getId() {
         return id;
@@ -127,4 +130,6 @@ public class Job {
     public String getJobDescription() { return jobDescription; }
 
     public String getBenefits() { return benefits; }
+
+    public String getStatus() { return status; }
 }

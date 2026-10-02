@@ -51,6 +51,7 @@
             <th>Địa điểm</th>
             <th>Hình thức</th>
             <th>Số lượng</th>
+            <th>Trạng thái</th>
         </tr>
         </thead>
         <tbody>
@@ -64,6 +65,11 @@
             <td th:text="${job.location}"></td>
             <td th:text="${job.workFormat}"></td>
             <td th:text="${job.headcount}"></td>
+            <td>
+                <span th:if="${job.status == 'OPEN'}" class="badge bg-success">Đang mở</span>
+                <span th:if="${job.status == 'CLOSED'}" class="badge bg-danger">Đã đủ số lượng</span>
+                <span th:if="${job.status == 'HIDDEN'}" class="badge bg-secondary">Đang ẩn</span>
+            </td>
         </tr>
         <tr th:if="${#lists.isEmpty(myJobs)}">
             <td colspan="5" style="text-align: center; padding: 20px;">Chưa có bài đăng nào.</td>

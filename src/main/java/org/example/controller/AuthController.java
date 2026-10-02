@@ -52,9 +52,9 @@ public class AuthController {
 
             // Điều hướng dựa theo vai trò
             if ("EMPLOYER".equals(user.getRole())) {
-                return "redirect:/employer/dashboard"; // Doanh nghiệp vào trang quản lý
+                return "redirect:/employer/jobs";
             } else {
-                return "redirect:/candidate/profile"; // Ứng viên vào trang điền CV
+                return "redirect:/candidate/job-board";
             }
         } else {
             // Nếu sai, báo lỗi
