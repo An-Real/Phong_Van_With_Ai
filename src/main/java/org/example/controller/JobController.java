@@ -234,7 +234,13 @@ public class JobController {
 
         newJob.setEmployerId(loggedInUser.getId());
 
-        if (newJob.getId() == null || newJob.getId().isEmpty()) {
+        // Sửa lõi ghi đè
+        // Nếu ID gửi lên là một chuỗi rỗng "", ta ép nó về null để MongoDB hiểu là Tạo mới.
+        if (newJob.getId() != null && newJob.getId().trim().isEmpty()) {
+            newJob.setId(null);
+        }
+
+        if (newJob.getId() == null) {
             // Tạo mới
             newJob.setCreatedAt(LocalDateTime.now());
             newJob.setStatus("OPEN");
@@ -242,15 +248,21 @@ public class JobController {
             // Cập nhật
             Job oldJob = jobRepository.findById(newJob.getId()).orElse(null);
             if (oldJob != null) {
+                // Phục hồi lại ngày tạo cũ (đề phòng HTML gửi lên bị null)
+                newJob.setCreatedAt(oldJob.getCreatedAt());
+
                 // Nếu đang CLOSED/HIDDEN mà số lượng mới > 0 -> Mở lại và renew ngày đăng
                 if (!"OPEN".equals(oldJob.getStatus()) && newJob.getHeadcount() > 0) {
                     newJob.setStatus("OPEN");
                     newJob.setCreatedAt(LocalDateTime.now()); // Đăng lại với ngày mới nhất
                 } else {
-                    newJob.setStatus(oldJob.getStatus()); // Giữ nguyên trạng thái cũ
+                    newJob.setStatus(oldJob.getStatus()); // Giữ nguyên trạng thái
                 }
-                // Nếu sửa mà số lượng = 0 thì tự đóng
-                if (newJob.getHeadcount() <= 0) newJob.setStatus("CLOSED");
+
+                // Nếu sửa mà số lượng = 0 thì tự đóng bài đăng
+                if (newJob.getHeadcount() <= 0) {
+                    newJob.setStatus("CLOSED");
+                }
             }
         }
 
