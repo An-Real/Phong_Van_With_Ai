@@ -35,6 +35,7 @@
     <table>
         <thead>
         <tr>
+            <th>Ngày nộp</th>
             <th>Họ tên Ứng viên</th>
             <th>Vị trí ứng tuyển</th>
             <th>Email liên hệ</th>
@@ -47,6 +48,7 @@
             th:data-url="@{/employer/interviews/detail(appId=${info.app.id})}"
             onclick="window.location.href=this.getAttribute('data-url')">
 
+            <td th:text="${info.app.appliedAt != null ? #temporals.format(info.app.appliedAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}"></td>
             <td th:text="${info.candidate.page1_basicInfo.fullName}" style="font-weight: bold; color: #004aad;"></td>
             <td th:text="${info.job.title}"></td>
             <td th:text="${info.candidate.email}"></td>

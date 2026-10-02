@@ -30,6 +30,10 @@
 <!-- Vòng lặp in ra từng Job -->
 <div th:each="job : ${jobs}" class="job-card">
     <div class="job-title" th:text="${job.title}"></div>
+    <p style="margin: 5px 0; font-size: 14px;">
+        <strong>Ngày đăng:</strong>
+        <span th:text="${job.createdAt != null ? #temporals.format(job.createdAt, 'dd/MM/yyyy') : 'Chưa rõ'}"></span>
+    </p>
     <div class="job-info"><b>Loại vai trò:</b> <span th:text="${job.roleType}"></span> | <b>Cấp bậc:</b> <span th:text="${job.level}"></span></div>
     <div class="job-info"><b>Địa điểm:</b> <span th:text="${job.location}"></span> | <b>Hình thức:</b> <span th:text="${job.workFormat}"></span></div>
     <div class="job-info"><b>Yêu cầu kỹ năng:</b> <span th:text="${job.educationRequired}"></span></div>

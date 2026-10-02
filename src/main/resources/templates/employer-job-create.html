@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Việc làm</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+
+        .action-bar { display: flex; gap: 15px; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center; text-decoration: none; color: white; display: block;}
+        .btn-submit { background-color: #004aad; }
+        .btn-submit:hover { background-color: #003080; }
+        .btn-cancel { background-color: #dc3545; }
+        .btn-cancel:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Nếu có ID là Đang sửa, nếu không là Đang tạo mới -->
+    <h2 th:text="${newJob.id == null ? 'Tạo Bài Đăng Mới' : 'Sửa Bài Đăng'}"></h2>
+
+    <form th:action="@{/employer/jobs/add}" th:object="${newJob}" method="POST">
+        <!-- Giữ lại ID và CreatedAt để khi cập nhật không bị sinh ra bài mới -->
+        <input type="hidden" th:field="*{id}" />
+        <input type="hidden" th:field="*{createdAt}" />
+
+        <div class="form-group"><label>Tiêu đề công việc:</label><input type="text" th:field="*{title}" required /></div>
+        <div class="form-group"><label>Loại vai trò (Role Type):</label><input type="text" th:field="*{roleType}" required /></div>
+        <div class="form-group"><label>Cấp bậc (Level):</label><input type="text" th:field="*{level}" required /></div>
+        <div class="form-group"><label>Địa điểm:</label><input type="text" th:field="*{location}" required /></div>
+        <div class="form-group">
+            <label>Hình thức làm việc:</label>
+            <select th:field="*{workFormat}">
+                <option value="On-site">On-site</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Remote">Remote</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Loại việc làm:</label>
+            <select th:field="*{jobType}">
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Internship">Internship</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Số lượng cần tuyển:</label><input type="number" th:field="*{headcount}" min="1" required /></div>
+        <div class="form-group"><label>Yêu cầu kinh nghiệm:</label><input type="text" th:field="*{experienceRequired}" /></div>
+        <div class="form-group"><label>Yêu cầu kỹ năng/Học vấn:</label><textarea th:field="*{educationRequired}" rows="3"></textarea></div>
+        <div class="form-group"><label>Mô tả công việc:</label><textarea th:field="*{jobDescription}" rows="4"></textarea></div>
+        <div class="form-group"><label>Quyền lợi:</label><textarea th:field="*{benefits}" rows="3"></textarea></div>
+
+        <div class="action-bar">
+            <button type="submit" class="btn btn-submit">Lưu Bài Đăng</button>
+            <!-- Đang sửa -> quay về chi tiết bài đăng -->
+            <a th:if="${newJob.id != null}"
+               th:href="@{/employer/jobs/detail(jobId=${newJob.id})}"
+               class="btn btn-cancel">
+                Hủy
+            </a>
+
+            <!-- Đang tạo mới -> quay về quản lý bài đăng -->
+            <a th:unless="${newJob.id != null}"
+               href="/employer/jobs"
+               class="btn btn-cancel">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

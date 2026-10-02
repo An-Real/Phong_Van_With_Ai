@@ -41,6 +41,7 @@
     <table>
         <thead>
         <tr>
+            <th>Ngày ứng tuyển</th>
             <th>Tiêu đề</th>
             <th>Cấp bậc</th>
             <th>Địa điểm</th>
@@ -53,6 +54,8 @@
         <tr th:each="info : ${appliedList}" class="clickable-row"
             th:data-url="@{/candidate/applied-jobs/detail(appId=${info.app.id})}"
             onclick="window.location.href=this.getAttribute('data-url')">
+
+            <td th:text="${info.app.appliedAt != null ? #temporals.format(info.app.appliedAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}"></td>
             <td th:text="${info.job.title}" style="font-weight: bold;"></td>
             <td th:text="${info.job.level}"></td>
             <td th:text="${info.job.location}"></td>

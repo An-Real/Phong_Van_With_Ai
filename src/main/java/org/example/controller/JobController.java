@@ -76,61 +76,80 @@ public class JobController {
     // EMPLOYER - QUẢN LÝ BÀI ĐĂNG
     // =========================================================
 
-    /**
-     * Hiển thị danh sách bài đăng của nhà tuyển dụng.
-     */
+    // Hiển thị danh sách bài đăng
     @GetMapping("/employer/jobs")
-    public String manageJobs(
-            HttpSession session,
-            Model model
-    ) {
-
+    public String manageJobs(HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
 
-        if (!hasRole(loggedInUser, "EMPLOYER")) {
-            return "redirect:/login";
-        }
-
-        // Lấy các Job do nhà tuyển dụng hiện tại đăng
-        List<Job> myJobs = jobRepository.findByEmployerId(
-                loggedInUser.getId()
-        );
-
+        List<Job> myJobs = jobRepository.findByEmployerId(loggedInUser.getId());
         model.addAttribute("myJobs", myJobs);
-
-        // Job rỗng để form tạo bài đăng mới
-        model.addAttribute("newJob", new Job());
-
         return "employer-jobs";
     }
 
-
-    /**
-     * Xử lý tạo bài đăng mới.
-     */
-    @PostMapping("/employer/jobs/add")
-    public String addJob(
-            @ModelAttribute("newJob") Job newJob,
-            HttpSession session
-    ) {
-
+    // Mở trang Form Tạo bài đăng mới
+    @GetMapping("/employer/jobs/create")
+    public String showCreateJobForm(HttpSession session, Model model) {
         User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
 
-        if (!hasRole(loggedInUser, "EMPLOYER")) {
-            return "redirect:/login";
-        }
-
-        // Không cho client tự truyền employerId khác
-        newJob.setEmployerId(loggedInUser.getId());
-
-        // Thời gian tạo bài đăng
-        newJob.setCreatedAt(LocalDateTime.now());
-
-        jobRepository.save(newJob);
-
-        return "redirect:/employer/jobs";
+        model.addAttribute("newJob", new Job());
+        return "employer-job-create"; // Sẽ tạo file HTML mới
     }
 
+    // Xử lý Lưu bài đăng (Dùng chung cho cả Tạo mới và Cập nhật)
+    @PostMapping("/employer/jobs/add")
+    public String addJob(@ModelAttribute("newJob") Job newJob, HttpSession session) {
+        User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        newJob.setEmployerId(loggedInUser.getId());
+        if (newJob.getCreatedAt() == null) {
+            newJob.setCreatedAt(LocalDateTime.now()); // Chỉ gán ngày tạo nếu là bài mới
+        }
+
+        jobRepository.save(newJob); // Nếu newJob có ID, MongoDB tự hiểu là Cập nhật. Nếu không có ID, nó tạo mới.
+        return "redirect:/employer/jobs?success=true";
+    }
+
+    // Mở trang Chi tiết Bài đăng
+    @GetMapping("/employer/jobs/detail")
+    public String viewJobDetail(@RequestParam String jobId, HttpSession session, Model model) {
+        User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        Job job = jobRepository.findById(jobId).orElse(null);
+        if (job == null || !loggedInUser.getId().equals(job.getEmployerId())) return "redirect:/employer/jobs";
+
+        model.addAttribute("job", job);
+        return "employer-job-detail"; // Sẽ tạo file HTML mới
+    }
+
+    // Mở trang Sửa bài đăng (Tái sử dụng giao diện tạo mới)
+    @GetMapping("/employer/jobs/edit")
+    public String editJobForm(@RequestParam String jobId, HttpSession session, Model model) {
+        User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        Job job = jobRepository.findById(jobId).orElse(null);
+        if (job == null || !loggedInUser.getId().equals(job.getEmployerId())) return "redirect:/employer/jobs";
+
+        model.addAttribute("newJob", job); // Đưa data cũ vào form
+        return "employer-job-create";
+    }
+
+    // Xóa bài đăng
+    @PostMapping("/employer/jobs/delete")
+    public String deleteJob(@RequestParam String jobId, HttpSession session) {
+        User loggedInUser = getLoggedInUser(session);
+        if (!hasRole(loggedInUser, "EMPLOYER")) return "redirect:/login";
+
+        Job job = jobRepository.findById(jobId).orElse(null);
+        if (job != null && loggedInUser.getId().equals(job.getEmployerId())) {
+            jobRepository.delete(job);
+        }
+        return "redirect:/employer/jobs?deleted=true";
+    }
 
     // =========================================================
     // CANDIDATE - BẢNG TIN VIỆC LÀM

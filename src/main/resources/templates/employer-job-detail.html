@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết Bài đăng</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #004aad; border-bottom: 2px solid #004aad; padding-bottom: 10px; margin-top: 0; }
+        .job-detail-row { margin-bottom: 15px; font-size: 16px; line-height: 1.5; }
+        .label { font-weight: bold; color: #333; width: 180px; display: inline-block; }
+        .content-box { background: #fdfdfd; padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; }
+
+        .action-bar { display: flex; gap: 15px; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center; text-decoration: none; color: white; display: block; box-sizing: border-box;}
+        .btn-edit { background-color: #f39c12; }
+        .btn-edit:hover { background-color: #d68910; }
+        .btn-delete { background-color: #dc3545; }
+        .btn-delete:hover { background-color: #c82333; }
+        .btn-back { background-color: #6c757d; }
+        .btn-back:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Thông tin chi tiết Việc làm</h2>
+
+    <div class="job-detail-row"><span class="label">Ngày đăng:</span> <span th:text="${job.createdAt != null ? #temporals.format(job.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}" style="color: #d63031; font-weight: bold;"></span></div>
+    <div class="job-detail-row"><span class="label">Tiêu đề:</span> <span th:text="${job.title}" style="color: #004aad; font-weight: bold; font-size: 20px;"></span></div>
+    <div class="job-detail-row"><span class="label">Loại vai trò:</span> <span th:text="${job.roleType}"></span></div>
+    <div class="job-detail-row"><span class="label">Loại việc làm:</span> <span th:text="${job.jobType}"></span></div>
+    <div class="job-detail-row"><span class="label">Cấp bậc:</span> <span th:text="${job.level}"></span></div>
+    <div class="job-detail-row"><span class="label">Địa điểm:</span> <span th:text="${job.location}"></span></div>
+    <div class="job-detail-row"><span class="label">Hình thức:</span> <span th:text="${job.workFormat}"></span></div>
+    <div class="job-detail-row"><span class="label">Số lượng cần tuyển:</span> <span th:text="${job.headcount}"></span></div>
+    <div class="job-detail-row"><span class="label">Yêu cầu kinh nghiệm:</span> <span th:text="${job.experienceRequired}"></span></div>
+
+    <div class="job-detail-row">
+        <span class="label">Yêu cầu Kỹ năng/Học vấn:</span>
+        <div class="content-box" th:text="${job.educationRequired}"></div>
+    </div>
+
+    <div class="job-detail-row">
+        <span class="label">Mô tả công việc:</span>
+        <div class="content-box" th:text="${job.jobDescription}"></div>
+    </div>
+    <div class="job-detail-row">
+        <span class="label">Quyền lợi:</span>
+        <div class="content-box" th:text="${job.benefits}"></div>
+    </div>
+
+    <!-- Thanh nút hành động -->
+    <div class="action-bar">
+        <!-- Nút Sửa: Chuyển sang form tạo mới kèm data -->
+        <a th:href="@{/employer/jobs/edit(jobId=${job.id})}" class="btn btn-edit">Sửa bài đăng</a>
+
+        <!-- Nút Xóa: POST form để bảo mật -->
+        <form th:action="@{/employer/jobs/delete}" method="POST" style="flex: 1;">
+            <input type="hidden" name="jobId" th:value="${job.id}" />
+            <button type="submit" class="btn btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa bài đăng này không? Mọi hồ sơ đã nộp vào đây có thể bị ảnh hưởng.');" style="width: 100%;">Xóa bài đăng</button>
+        </form>
+
+        <a href="/employer/jobs" class="btn btn-back">Quay Lại</a>
+    </div>
+</div>
+</body>
+</html>
