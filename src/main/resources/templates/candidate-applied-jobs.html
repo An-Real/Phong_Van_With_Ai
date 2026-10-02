@@ -62,7 +62,7 @@
             <td th:text="${info.job.workFormat}"></td>
             <td th:text="${info.job.headcount}"></td>
             <td>
-                <span th:if="${info.app.status == 'APPLIED'}" class="badge bg-applied">Chờ duyệt CV</span>
+                <span th:if="${info.app.status == 'APPLIED'}" class="badge bg-applied">Chờ duyệt</span>
                 <span th:if="${info.app.status == 'PENDING_INTERVIEW'}" class="badge bg-interview">Chờ phỏng vấn</span>
                 <span th:if="${info.app.status == 'HIRED'}" class="badge bg-hired">Đã Trúng Tuyển</span>
                 <span th:if="${info.app.status == 'INTERVIEW_FAILED'}" class="badge bg-failed">Trượt Phỏng Vấn</span>

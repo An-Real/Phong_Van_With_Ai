@@ -29,9 +29,10 @@
     <div class="header-info">
         <h3 style="margin-top: 0; color: #333;">Đơn ứng tuyển: <span th:text="${job.title}" style="color: #004aad;"></span></h3>
         <p><strong>Trạng thái hiện tại:</strong>
-            <span th:if="${app.status == 'APPLIED'}" style="color: #ffc107; font-weight: bold;">Chờ duyệt</span>
-            <span th:if="${app.status == 'ACCEPTED'}" style="color: #28a745; font-weight: bold;">Đã đậu</span>
-            <span th:if="${app.status == 'REJECTED'}" style="color: #dc3545; font-weight: bold;">Đã từ chối</span>
+            <!-- Cập nhật đúng 3 trạng thái của vòng Phỏng vấn -->
+            <span th:if="${app.status == 'PENDING_INTERVIEW'}" style="color: #17a2b8; font-weight: bold; font-size: 16px;">Chờ phỏng vấn</span>
+            <span th:if="${app.status == 'HIRED'}" style="color: #28a745; font-weight: bold; font-size: 16px;">Đã Trúng Tuyển</span>
+            <span th:if="${app.status == 'INTERVIEW_FAILED'}" style="color: #6c757d; font-weight: bold; font-size: 16px;">Trượt Phỏng Vấn</span>
         </p>
     </div>
 
